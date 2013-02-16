@@ -1,0 +1,345 @@
+/*
+ * Copyright (C) 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.datetimepicker;
+
+import android.animation.Keyframe;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.app.Service;
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.os.SystemClock;
+import android.os.Vibrator;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
+
+import com.android.datetimepicker.R;
+
+public class RadialSelectorView extends View {
+    private static final String TAG = "RadialSelectorView";
+
+    private final Paint mPaint = new Paint();
+
+    private boolean mIsInitialized;
+    private boolean mDrawValuesReady;
+
+    private float mCircleRadiusMultiplier;
+    private float mAmPmCircleRadiusMultiplier;
+    private float mInnerNumbersRadiusMultiplier;
+    private float mOuterNumbersRadiusMultiplier;
+    private float mNumbersRadiusMultiplier;
+    private float mSelectionRadiusMultiplier;
+    private float mAnimationRadiusMultiplier;
+    private boolean mIs24HourMode;
+    private boolean mHasInnerCircle;
+
+    private int mXCenter;
+    private int mYCenter;
+    private int mCircleRadius;
+    private float mTransitionMidRadiusMultiplier;
+    private float mTransitionEndRadiusMultiplier;
+    private int mLineLength;
+    private int mSelectionRadius;
+    private InvalidateUpdateListener mInvalidateUpdateListener;
+
+    private int mSelectionDegrees;
+    private double mSelectionRadians;
+    private boolean mDrawLine;
+    private boolean mForceDrawDot;
+
+    public RadialSelectorView(Context context) {
+        super(context);
+        mIsInitialized = false;
+    }
+
+    public void initialize(Context context, int selectionDegrees, boolean is24HourMode,
+            boolean hasInnerCircle, boolean isInnerCircle, boolean disappearsOut) {
+        if (mIsInitialized) {
+            Log.e(TAG, "This RadialSelectorView may only be initialized once.");
+            return;
+        }
+
+        Resources res = context.getResources();
+
+        int blue = res.getColor(R.color.blue);
+        mPaint.setColor(blue);
+        mPaint.setAntiAlias(true);
+
+        mIs24HourMode = is24HourMode;
+        if (is24HourMode) {
+            mCircleRadiusMultiplier = Float.parseFloat(
+                    res.getString(R.string.circle_radius_multiplier_24HourMode));
+        } else {
+            mCircleRadiusMultiplier = Float.parseFloat(
+                    res.getString(R.string.circle_radius_multiplier));
+            mAmPmCircleRadiusMultiplier =
+                    Float.parseFloat(res.getString(R.string.ampm_circle_radius_multiplier));
+        }
+
+        mHasInnerCircle = hasInnerCircle;
+        if (hasInnerCircle) {
+            mInnerNumbersRadiusMultiplier =
+                    Float.parseFloat(res.getString(R.string.numbers_radius_multiplier_inner));
+            mOuterNumbersRadiusMultiplier =
+                    Float.parseFloat(res.getString(R.string.numbers_radius_multiplier_outer));
+        } else {
+            mNumbersRadiusMultiplier =
+                    Float.parseFloat(res.getString(R.string.numbers_radius_multiplier_normal));
+        }
+        mSelectionRadiusMultiplier =
+                Float.parseFloat(res.getString(R.string.selection_radius_multiplier));
+
+        setSelection(selectionDegrees, isInnerCircle, false, false);
+
+        mAnimationRadiusMultiplier = 1;
+        mTransitionMidRadiusMultiplier = 1f + (0.05f * (disappearsOut? -1 : 1));
+        mTransitionEndRadiusMultiplier = 1f + (0.3f * (disappearsOut? 1 : -1));
+        mInvalidateUpdateListener = new InvalidateUpdateListener();
+
+        mIsInitialized = true;
+    }
+
+    public void setSelection(int selectionDegrees, boolean isInnerCircle,
+            boolean drawLine, boolean forceDrawDot) {
+        mSelectionDegrees = selectionDegrees;
+        mSelectionRadians = selectionDegrees * Math.PI / 180;
+        mDrawLine = drawLine;
+        mForceDrawDot = forceDrawDot;
+
+        if (mHasInnerCircle) {
+            if (isInnerCircle) {
+                mNumbersRadiusMultiplier = mInnerNumbersRadiusMultiplier;
+            } else {
+                mNumbersRadiusMultiplier = mOuterNumbersRadiusMultiplier;
+            }
+        }
+    }
+
+    public void setDrawLine(boolean drawLine) {
+        mDrawLine = drawLine;
+    }
+
+    public void setAnimationRadiusMultiplier(float animationRadiusMultiplier) {
+        mAnimationRadiusMultiplier = animationRadiusMultiplier;
+    }
+
+    public int getDegreesFromCoords(float pointX, float pointY, boolean forceLegal,
+            final Boolean[] isInnerCircle) {
+        if (!mDrawValuesReady) {
+            return -1;
+        }
+
+        double hypotenuse = Math.sqrt(
+                (pointY - mYCenter)*(pointY - mYCenter) +
+                (pointX - mXCenter)*(pointX - mXCenter));
+        // Check if we're outside the range 
+        if (mHasInnerCircle) {
+            if (forceLegal) {
+                // If we're told to force the coordinates to be legal, we'll set the isInnerCircle
+                // boolean based based off whichever number the coordinates are closer to.
+                int innerNumberRadius = (int) (mCircleRadius * mInnerNumbersRadiusMultiplier);
+                int distanceToInnerNumber = (int) Math.abs(hypotenuse - innerNumberRadius);
+                int outerNumberRadius = (int) (mCircleRadius * mOuterNumbersRadiusMultiplier);
+                int distanceToOuterNumber = (int) Math.abs(hypotenuse - outerNumberRadius);
+
+                isInnerCircle[0] = (distanceToInnerNumber <= distanceToOuterNumber);
+            } else {
+                // Otherwise, if we're close enough to either number (with the space between the
+                // two allotted equally), set the isInnerCircle boolean as the closer one.
+                // appropriately, but otherwise return -1.
+                int minAllowedHypotenuseForInnerNumber =
+                        (int) (mCircleRadius * mInnerNumbersRadiusMultiplier) - mSelectionRadius;
+                int maxAllowedHypotenuseForOuterNumber =
+                        (int) (mCircleRadius * mOuterNumbersRadiusMultiplier) + mSelectionRadius;
+                int halfwayHypotenusePoint = (int) (mCircleRadius *
+                        ((mOuterNumbersRadiusMultiplier + mInnerNumbersRadiusMultiplier) / 2));
+
+                if (hypotenuse >= minAllowedHypotenuseForInnerNumber &&
+                        hypotenuse <= halfwayHypotenusePoint) {
+                    isInnerCircle[0] = true;
+                } else if (hypotenuse <= maxAllowedHypotenuseForOuterNumber &&
+                        hypotenuse >= halfwayHypotenusePoint) {
+                    isInnerCircle[0] = false;
+                } else {
+                    return -1;
+                }
+            }
+        } else {
+            // If there's just one circle, we'll need to return -1 if:
+            // we're not told to force the coordinates to be legal, and
+            // the coordinates' distance to the number is within the allowed distance.
+            if (!forceLegal) {
+                int distanceToNumber = (int) Math.abs(hypotenuse - mLineLength);
+                // The max allowed distance will be defined as the distance from the center of the
+                // number to the edge of the circle.
+                int maxAllowedDistance = (int) (mCircleRadius * (1 - mNumbersRadiusMultiplier));
+                if (distanceToNumber > maxAllowedDistance) {
+                    return -1;
+                }
+            }
+        }
+
+
+        float opposite = Math.abs(pointY - mYCenter);
+        double radians = Math.asin(opposite / hypotenuse);
+        int degrees = (int) (radians * 180 / Math.PI);
+
+        // Now we have to translate to the correct quadrant.
+        boolean rightSide = (pointX > mXCenter);
+        boolean topSide = (pointY < mYCenter);
+        if (rightSide && topSide) {
+            degrees = 90 - degrees;
+        } else if (rightSide && !topSide) {
+            degrees = 90 + degrees;
+        } else if (!rightSide && !topSide) {
+            degrees = 270 - degrees;
+        } else if (!rightSide && topSide) {
+            degrees = 270 + degrees;
+        }
+        return degrees;
+    }
+
+    @Override
+    public void onDraw(Canvas canvas) {
+        int viewWidth = getWidth();
+        if (viewWidth == 0 || !mIsInitialized) {
+            return;
+        }
+
+        if (!mDrawValuesReady) {
+            mXCenter = getWidth() / 2;
+            mYCenter = getHeight() / 2;
+            mCircleRadius = (int) (Math.min(mXCenter, mYCenter) * mCircleRadiusMultiplier);
+
+            if (!mIs24HourMode) {
+                // We'll need to draw the AM/PM circles, so the main circle will need to have
+                // a slightly higher center. To keep the entire view centered vertically, we'll
+                // have to push it up by half the radius of the AM/PM circles.
+                int amPmCircleRadius = (int) (mCircleRadius * mAmPmCircleRadiusMultiplier);
+                mYCenter -= amPmCircleRadius / 2;
+            }
+
+            mSelectionRadius = (int) (mCircleRadius * mSelectionRadiusMultiplier);
+
+            mDrawValuesReady = true;
+        }
+
+        mLineLength = (int) (mCircleRadius * mNumbersRadiusMultiplier * mAnimationRadiusMultiplier);
+        int pointX = mXCenter + (int) (mLineLength * Math.sin(mSelectionRadians));
+        int pointY = mYCenter - (int) (mLineLength * Math.cos(mSelectionRadians));
+
+        mPaint.setAlpha(75);
+        canvas.drawCircle(pointX, pointY, mSelectionRadius, mPaint);
+
+        if (mForceDrawDot | mSelectionDegrees % 30 != 0) {
+            // We're not on a direct tick.
+            mPaint.setAlpha(255);
+            canvas.drawCircle(pointX, pointY, mSelectionRadius / 4, mPaint);
+        } else {
+            int lineLength = mLineLength;
+            lineLength -= mSelectionRadius;
+            pointX = mXCenter + (int) (lineLength * Math.sin(mSelectionRadians));
+            pointY = mYCenter - (int) (lineLength * Math.cos(mSelectionRadians));
+        }
+
+        if (mDrawLine || true) {
+            mPaint.setAlpha(255);
+            mPaint.setStrokeWidth(1);
+            canvas.drawLine(mXCenter, mYCenter, pointX, pointY, mPaint);
+        }
+    }
+
+    public ObjectAnimator getDisappearAnimator() {
+        if (!mIsInitialized || !mDrawValuesReady) {
+            Log.e(TAG, "RadialSelectorView was not ready for animation.");
+            return null;
+        }
+
+        Keyframe kf0, kf1, kf2;
+        float midwayPoint = 0.2f;
+        int duration = 500;
+
+        kf0 = Keyframe.ofFloat(0f, 1);
+        kf1 = Keyframe.ofFloat(midwayPoint, mTransitionMidRadiusMultiplier);
+        kf2 = Keyframe.ofFloat(1f, mTransitionEndRadiusMultiplier);
+        PropertyValuesHolder radiusDisappear = PropertyValuesHolder.ofKeyframe(
+                "animationRadiusMultiplier", kf0, kf1, kf2);
+
+        kf0 = Keyframe.ofFloat(0f, 1f);
+        kf1 = Keyframe.ofFloat(1f, 0f);
+        PropertyValuesHolder fadeOut = PropertyValuesHolder.ofKeyframe("alpha", kf0, kf1);
+
+        ObjectAnimator disappearAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                this, radiusDisappear, fadeOut).setDuration(duration);
+        disappearAnimator.addUpdateListener(mInvalidateUpdateListener);
+
+        return disappearAnimator;
+    }
+
+    public ObjectAnimator getReappearAnimator() {
+        if (!mIsInitialized || !mDrawValuesReady) {
+            Log.e(TAG, "RadialSelectorView was not ready for animation.");
+            return null;
+        }
+
+        Keyframe kf0, kf1, kf2, kf3;
+        float midwayPoint = 0.2f;
+        int duration = 500;
+
+        // The time points are half of what they would normally be, because this animation is
+        // staggered against the disappear so they happen seamlessly. The reappear starts
+        // halfway into the disappear.
+        float delayMultiplier = 0.5f;
+        float transitionDurationMultiplier = 0.75f;
+        float totalDurationMultiplier = transitionDurationMultiplier + delayMultiplier;
+        int totalDuration = (int) (duration * totalDurationMultiplier);
+        float delayPoint = (delayMultiplier * duration) / totalDuration;
+        midwayPoint = 1 - (midwayPoint * (1 - delayPoint));
+
+        kf0 = Keyframe.ofFloat(0f, mTransitionEndRadiusMultiplier);
+        kf1 = Keyframe.ofFloat(delayPoint, mTransitionEndRadiusMultiplier);
+        kf2 = Keyframe.ofFloat(midwayPoint, mTransitionMidRadiusMultiplier);
+        kf3 = Keyframe.ofFloat(1f, 1);
+        PropertyValuesHolder radiusReappear = PropertyValuesHolder.ofKeyframe(
+                "animationRadiusMultiplier", kf0, kf1, kf2, kf3);
+
+        kf0 = Keyframe.ofFloat(0f, 0f);
+        kf1 = Keyframe.ofFloat(delayPoint, 0f);
+        kf2 = Keyframe.ofFloat(1f, 1f);
+        PropertyValuesHolder fadeIn = PropertyValuesHolder.ofKeyframe("alpha", kf0, kf1, kf2);
+
+        ObjectAnimator reappearAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                this, radiusReappear, fadeIn).setDuration(totalDuration);
+        reappearAnimator.addUpdateListener(mInvalidateUpdateListener);
+        return reappearAnimator;
+    }
+
+    private class InvalidateUpdateListener implements AnimatorUpdateListener {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            RadialSelectorView.this.invalidate();
+        }
+    }
+}
