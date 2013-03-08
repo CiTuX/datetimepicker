@@ -17,9 +17,9 @@
 */
 -->
 
-<resources
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
-    xmlns:android="http://schemas.android.com/apk/res/android" >
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" 
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
     <dimen name="time_label_right_padding">34sp</dimen>
     <dimen name="time_label_size">96sp</dimen>
     <dimen name="ampm_label_size">32sp</dimen>
@@ -28,4 +28,24 @@
     <dimen name="separator_padding">8dip</dimen>
     <dimen name="header_height">144dip</dimen>
     <dimen name="footer_height">72dip</dimen>
+
+    <dimen name="pager_height">400dp</dimen>
+    <dimen name="pager_width">400dp</dimen>
+    <dimen name="date_picker_width">400dp</dimen>
+    <dimen name="selected_date_layout_height">360dp</dimen>
+    <dimen name="done_button_height">42dp</dimen>
+    <dimen name="date_picker_header_height">45dp</dimen>
+    <dimen name="month_list_item_header_height">75dp</dimen>
+    <dimen name="month_list_item_padding">24dp</dimen>
+    <dimen name="day_number_select_circle_radius">24dp</dimen>
+    <dimen name="month_select_circle_radius">36dp</dimen>
+    <dimen name="selected_date_year_size">45dp</dimen>
+    <dimen name="selected_date_day_size">150dp</dimen>
+    <dimen name="selected_date_month_size">45dp</dimen>
+    <dimen name="date_picker_header_text_size">21dp</dimen>
+    <dimen name="month_list_item_size">24sp</dimen>
+    <dimen name="month_label_size">24sp</dimen>
+    <dimen name="day_number_size">24sp</dimen>
+    <dimen name="month_day_label_text_size">15sp</dimen>
+
 </resources>

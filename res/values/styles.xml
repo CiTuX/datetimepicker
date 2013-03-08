@@ -15,6 +15,7 @@
 -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+
     <!--
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
@@ -46,5 +47,4 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/black_50</item>
     </style>
-
 </resources>

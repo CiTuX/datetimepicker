@@ -13,14 +13,13 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.datetimepicker"
-    android:versionCode="1"
-    android:versionName="1.0" >
-
-    <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="17" />
-
-    <uses-permission android:name="android.permission.VIBRATE" />
-</manifest>
+<com.android.datetimepicker.date.SelectableTextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/month_text_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:padding="@dimen/month_list_item_padding"
+    android:textColor="@color/calendar_day_number"
+    android:textSize="@dimen/month_list_item_size" />

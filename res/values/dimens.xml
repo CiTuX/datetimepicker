@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-/*
-** Copyright 2013, The Android Open Source Project
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
--->
+     Copyright (C) 2013 The Android Open Source Project
 
-<resources
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
     xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <item name="circle_radius_multiplier" format="float" type="string">0.82</item>
     <item name="circle_radius_multiplier_24HourMode" format="float" type="string">0.85</item>
     <item name="selection_radius_multiplier" format="float" type="string">0.14</item>
@@ -30,6 +27,7 @@
     <item name="text_size_multiplier_normal" format="float" type="string">0.17</item>
     <item name="text_size_multiplier_inner" format="float" type="string">0.14</item>
     <item name="text_size_multiplier_outer" format="float" type="string">0.11</item>
+
     <dimen name="time_label_right_padding">12sp</dimen>
     <dimen name="time_label_size">60sp</dimen>
     <dimen name="ampm_label_size">16sp</dimen>
@@ -38,4 +36,23 @@
     <dimen name="separator_padding">4dip</dimen>
     <dimen name="header_height">96dip</dimen>
     <dimen name="footer_height">48dip</dimen>
+    <dimen name="pager_height">270dp</dimen>
+    <dimen name="pager_width">270dp</dimen>
+    <dimen name="date_picker_width">270dp</dimen>
+    <dimen name="selected_date_layout_height">240dp</dimen>
+    <dimen name="done_button_height">42dp</dimen>
+    <dimen name="date_picker_header_height">30dp</dimen>
+    <dimen name="month_list_item_header_height">50dp</dimen>
+    <dimen name="month_list_item_padding">16dp</dimen>
+    <dimen name="month_day_label_text_size">10sp</dimen>
+    <dimen name="day_number_select_circle_radius">16dp</dimen>
+    <dimen name="month_select_circle_radius">24dp</dimen>
+    <dimen name="selected_date_year_size">30dp</dimen>
+    <dimen name="selected_date_day_size">100dp</dimen>
+    <dimen name="selected_date_month_size">30dp</dimen>
+    <dimen name="date_picker_header_text_size">14dp</dimen>
+    <dimen name="month_label_size">16sp</dimen>
+    <dimen name="day_number_size">16sp</dimen>
+    <dimen name="month_list_item_size">16sp</dimen>
+
 </resources>

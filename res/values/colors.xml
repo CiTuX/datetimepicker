@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2013 The Android Open Source Project
+<!--
+     Copyright (C) 2013 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,8 +14,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <resources>
+
     <color name="white">#ffffff</color>
     <color name="black_03">#08000000</color>
     <color name="black_20">#33000000</color>
@@ -22,4 +23,33 @@
     <color name="black_60">#99000000</color>
     <color name="black_80">#CC000000</color>
     <color name="blue">#33b5e5</color>
+
+    <color name="calendar_header">#999999</color>
+    <color name="calendar_week_labels">#FFDBDCDE</color>
+    <color name="calendar_pager">#FFECEDEE</color>
+    <color name="calendar_day_number">#FF999999</color>
+    <color name="calendar_selected_date_text">#FFD1D2D4</color>
+    <color name="done_button_color">#FFECEDEE</color>
+    <color name="selected_text">#FF33B5E5</color>
+    <color name="mini_month_bg_color">#FFFFFFFF</color>
+    <color name="mini_month_today_outline_color">#FF000000</color>
+    <color name="month_day_number">#999999</color>
+    <color name="month_mini_day_number">#FF000000</color>
+    <color name="month_day_number_other">#FF999999</color>
+    <color name="month_week_num_color">#FF999999</color>
+    <color name="month_day_names_color">#FF999999</color>
+    <color name="month_today_number">#FF333333</color>
+    <color name="month_event_color">#FF333333</color>
+    <color name="month_event_extra_color">#FF666666</color>
+    <color name="month_event_other_color">#FF666666</color>
+    <color name="month_event_extra_other_color">#4C999999</color>
+    <color name="month_saturday">#80333333</color>
+    <color name="month_sunday">#80333333</color>
+    <color name="month_grid_lines">#ffCCCCCC</color>
+    <color name="month_other_month_day_number">#ff939497</color>
+    <color name="month_other_bgcolor">#FFEEEEEE</color>
+    <color name="month_selected_week_bgcolor">#FFDDDDDD</color>
+    <color name="month_today_bgcolor">#FFFFFFFF</color>
+    <color name="month_bgcolor">#FFE5E5E5</color>
+
 </resources>

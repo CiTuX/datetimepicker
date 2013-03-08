@@ -13,14 +13,17 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.datetimepicker"
-    android:versionCode="1"
-    android:versionName="1.0" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?android:attr/buttonBarStyle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout="@+id/done_layout"
+    android:orientation="vertical" >
 
-    <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="17" />
-
-    <uses-permission android:name="android.permission.VIBRATE" />
-</manifest>
+    <Button
+        android:id="@+id/done"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/done_label" />
+</LinearLayout>
