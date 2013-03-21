@@ -89,7 +89,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dip"
-        android:background="@color/lighter_gray" />
+        android:background="@color/black_20" />
     <LinearLayout
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
@@ -97,9 +97,11 @@
         android:orientation="horizontal" >
         <Button
             android:id="@+id/done_button"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/done_label" />
+            android:text="@string/done_label"
+            android:textSize="@dimen/done_label_size"
+            android:textColor="@color/black_60"
+            style="?android:attr/buttonBarButtonStyle" />
     </LinearLayout>
 </LinearLayout>

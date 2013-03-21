@@ -20,9 +20,6 @@
 <resources
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
     xmlns:android="http://schemas.android.com/apk/res/android" >
-    <dimen name="time_label_right_padding">10sp</dimen>
-    <dimen name="time_label_size">40sp</dimen>
-    <dimen name="ampm_label_size">14sp</dimen>
-    <dimen name="header_height">64dip</dimen>
-    <dimen name="footer_height">48dip</dimen>
+    <dimen name="dialog_height">300dip</dimen>
+    <dimen name="left_side_width">270dip</dimen>
 </resources>

@@ -36,7 +36,7 @@ public class CircleView extends View {
     private final Paint mPaint = new Paint();
     private boolean mIs24HourMode;
     private int mWhite;
-    private int mBlack;
+    private int mBlack80;
     private float mCircleRadiusMultiplier;
     private float mAmPmCircleRadiusMultiplier;
     private boolean mIsInitialized;
@@ -51,7 +51,7 @@ public class CircleView extends View {
 
         Resources res = context.getResources();
         mWhite = res.getColor(R.color.white);
-        mBlack = res.getColor(R.color.black);
+        mBlack80 = res.getColor(R.color.black_80);
         mPaint.setAntiAlias(true);
 
         mIsInitialized = false;
@@ -105,7 +105,7 @@ public class CircleView extends View {
         mPaint.setColor(mWhite);
         canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, mPaint);
 
-        mPaint.setColor(mBlack);
+        mPaint.setColor(mBlack80);
         canvas.drawCircle(mXCenter, mYCenter, 2, mPaint);
     }
 }

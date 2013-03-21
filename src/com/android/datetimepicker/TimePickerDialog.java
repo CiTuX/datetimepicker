@@ -54,6 +54,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     private static final String KEY_HOUR_OF_DAY = "hour_of_day";
     private static final String KEY_MINUTE = "minute";
     private static final String KEY_IS_24_HOUR_VIEW = "is_24_hour_view";
+    private static final String KEY_CURRENT_ITEM_SHOWING = "current_item_showing";
     public static final int HOUR_INDEX = 0;
     public static final int MINUTE_INDEX = 1;
     public static final int AMPM_INDEX = 2; // NOT a real index for the purpose of what's showing.
@@ -64,7 +65,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
 
     private OnTimeSetListener mCallback;
 
-    private Button mDoneButton;
+    private TextView mDoneButton;
     private TextView mHourView;
     private TextView mMinuteView;
     private TextView mAmPmTextView;
@@ -145,7 +146,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         Resources res = getResources();
 
         mBlue = res.getColor(R.color.blue);
-        mBlack = res.getColor(R.color.black);
+        mBlack = res.getColor(R.color.black_80);
 
         mHourView = (TextView) view.findViewById(R.id.hours);
         mMinuteView = (TextView) view.findViewById(R.id.minutes);
@@ -156,9 +157,14 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mTimePicker = (TimePicker) view.findViewById(R.id.time_picker);
         mTimePicker.setOnValueSelectedListener(this);
         mTimePicker.initialize(getActivity(), mInitialHourOfDay, mInitialMinute, mIs24HourMode);
+        int currentItemShowing = HOUR_INDEX;
+        if (savedInstanceState != null &&
+                savedInstanceState.containsKey(KEY_CURRENT_ITEM_SHOWING)) {
+            currentItemShowing = savedInstanceState.getInt(KEY_CURRENT_ITEM_SHOWING);
+        }
+        setCurrentItemShowing(currentItemShowing, false);
         mTimePicker.invalidate();
 
-        mHourView.setTextColor(mBlue);
         mHourView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,7 +172,6 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 mTimePicker.tryVibrate();
             }
         });
-        mMinuteView.setTextColor(mBlack);
         mMinuteView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -175,7 +180,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             }
         });
 
-        mDoneButton = (Button) view.findViewById(R.id.done_button);
+        mDoneButton = (TextView) view.findViewById(R.id.done_button);
         mDoneButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -241,6 +246,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             outState.putInt(KEY_HOUR_OF_DAY, mTimePicker.getHours());
             outState.putInt(KEY_MINUTE, mTimePicker.getMinutes());
             outState.putBoolean(KEY_IS_24_HOUR_VIEW, mIs24HourMode);
+            outState.putInt(KEY_CURRENT_ITEM_SHOWING, mTimePicker.getCurrentItemShowing());
         }
     }
 

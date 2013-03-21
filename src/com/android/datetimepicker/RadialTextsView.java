@@ -43,6 +43,8 @@ public class RadialTextsView extends View {
     private boolean mDrawValuesReady;
     private boolean mIsInitialized;
 
+    private Typeface mTypefaceLight;
+    private Typeface mTypefaceRegular;
     private String[] mTexts;
     private String[] mInnerTexts;
     private boolean mIs24HourMode;
@@ -84,10 +86,12 @@ public class RadialTextsView extends View {
             return;
         }
 
-        int black = res.getColor(R.color.black);
-        mPaint.setColor(black);
-        Typeface tf = Typeface.create("sans-serif-thin", Typeface.NORMAL);
-        mPaint.setTypeface(tf);
+        int black80 = res.getColor(R.color.black_80);
+        mPaint.setColor(black80);
+        String typefaceFamily = res.getString(R.string.radial_numbers_typeface);
+        mTypefaceLight = Typeface.create(typefaceFamily, Typeface.NORMAL);
+        String typefaceFamilyRegular = res.getString(R.string.sans_serif);
+        mTypefaceRegular = Typeface.create(typefaceFamilyRegular, Typeface.NORMAL);
         mPaint.setAntiAlias(true);
         mPaint.setTextAlign(Align.CENTER);
 
@@ -134,6 +138,11 @@ public class RadialTextsView extends View {
 
         mTextGridValuesDirty = true;
         mIsInitialized = true;
+    }
+
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
     }
 
     public void setAnimationRadiusMultiplier(float animationRadiusMultiplier) {
@@ -187,9 +196,9 @@ public class RadialTextsView extends View {
             mTextGridValuesDirty = false;
         }
 
-        drawTexts(canvas, mTextSize, mTexts, mTextGridWidths, mTextGridHeights);
+        drawTexts(canvas, mTextSize, mTypefaceLight, mTexts, mTextGridWidths, mTextGridHeights);
         if (mHasInnerCircle) {
-            drawTexts(canvas, mInnerTextSize, mInnerTexts,
+            drawTexts(canvas, mInnerTextSize, mTypefaceRegular, mInnerTexts,
                     mInnerTextGridWidths, mInnerTextGridHeights);
         }
     }
@@ -225,9 +234,10 @@ public class RadialTextsView extends View {
         textGridWidths[6] = xCenter + offset1;
     }
 
-    private void drawTexts(Canvas canvas, float textSize, String[] texts,
+    private void drawTexts(Canvas canvas, float textSize, Typeface typeface, String[] texts,
             float[] textGridWidths, float[] textGridHeights) {
         mPaint.setTextSize(textSize);
+        mPaint.setTypeface(typeface);
         canvas.drawText(texts[0], textGridWidths[3], textGridHeights[0], mPaint);
         canvas.drawText(texts[1], textGridWidths[4], textGridHeights[1], mPaint);
         canvas.drawText(texts[2], textGridWidths[5], textGridHeights[2], mPaint);

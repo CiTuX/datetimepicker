@@ -141,6 +141,11 @@ public class RadialSelectorView extends View {
         mDrawLine = drawLine;
     }
 
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
+    }
+
     public void setAnimationRadiusMultiplier(float animationRadiusMultiplier) {
         mAnimationRadiusMultiplier = animationRadiusMultiplier;
     }
@@ -250,13 +255,13 @@ public class RadialSelectorView extends View {
         int pointX = mXCenter + (int) (mLineLength * Math.sin(mSelectionRadians));
         int pointY = mYCenter - (int) (mLineLength * Math.cos(mSelectionRadians));
 
-        mPaint.setAlpha(75);
+        mPaint.setAlpha(60);
         canvas.drawCircle(pointX, pointY, mSelectionRadius, mPaint);
 
         if (mForceDrawDot | mSelectionDegrees % 30 != 0) {
             // We're not on a direct tick.
             mPaint.setAlpha(255);
-            canvas.drawCircle(pointX, pointY, mSelectionRadius / 4, mPaint);
+            canvas.drawCircle(pointX, pointY, (mSelectionRadius * 2 / 7), mPaint);
         } else {
             int lineLength = mLineLength;
             lineLength -= mSelectionRadius;

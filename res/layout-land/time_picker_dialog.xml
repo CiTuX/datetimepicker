@@ -16,7 +16,7 @@
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="@dimen/dialog_height"
     android:orientation="horizontal"
     android:background="@color/gray" >
     <LinearLayout
@@ -88,7 +88,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dip"
-            android:background="@color/lighter_gray" />
+            android:background="@color/black_20" />
         <LinearLayout
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"

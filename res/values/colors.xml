@@ -17,8 +17,9 @@
 <resources>
     <color name="white">#ffffff</color>
     <color name="gray">#08000000</color>
-    <color name="lighter_gray">#15000000</color>
-    <color name="dark_gray">#70000000</color>
-    <color name="black">#000000</color>
+    <color name="black_20">#33000000</color>
+    <color name="black_50">#7F000000</color>
+    <color name="black_60">#99000000</color>
+    <color name="black_80">#CC000000</color>
     <color name="blue">#33b5e5</color>
 </resources>

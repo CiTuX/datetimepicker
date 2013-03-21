@@ -114,8 +114,6 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
         mMinuteRadialSelectorView = new RadialSelectorView(context);
         addView(mMinuteRadialSelectorView);
 
-        setCurrentItemShowing(HOUR_INDEX, false);
-
         mReselectSelectorRunnable = new ReselectSelectorRunnable(this);
 
         mVibrator = (Vibrator) context.getSystemService(Service.VIBRATOR_SERVICE);

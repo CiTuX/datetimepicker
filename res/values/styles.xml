@@ -33,19 +33,18 @@
     </style>
 
     <!-- Styles for dialog labels. -->
-    <style name="label" />
+    <style name="time_label_thin" />
+    <style name="done_button_light" />
 
-    <style name="time_label" parent="label">
+    <style name="time_label" parent="time_label_thin">
         <item name="android:textSize">@dimen/time_label_size</item>
+        <item name="android:textColor">@color/black_80</item>
     </style>
 
-    <style name="ampm_label" parent="label">
+    <style name="ampm_label">
         <item name="android:textSize">@dimen/ampm_label_size</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/black_50</item>
     </style>
 
-    <style name="done_label" parent="label">
-        <item name="android:textSize">@dimen/done_label_size</item>
-    </style>
 </resources>

@@ -35,7 +35,7 @@ public class AmPmCirclesView extends View {
 
     private final Paint mPaint = new Paint();
     private int mWhite;
-    private int mDarkGray;
+    private int mBlack50;
     private int mBlue;
     private float mCircleRadiusMultiplier;
     private float mAmPmCircleRadiusMultiplier;
@@ -67,9 +67,10 @@ public class AmPmCirclesView extends View {
 
         Resources res = context.getResources();
         mWhite = res.getColor(R.color.white);
-        mDarkGray = res.getColor(R.color.dark_gray);
+        mBlack50 = res.getColor(R.color.black_50);
         mBlue = res.getColor(R.color.blue);
-        Typeface tf = Typeface.create("sans-serif-thin", Typeface.NORMAL);
+        String typefaceFamily = res.getString(R.string.sans_serif);
+        Typeface tf = Typeface.create(typefaceFamily, Typeface.NORMAL);
         mPaint.setTypeface(tf);
         mPaint.setAntiAlias(true);
         mPaint.setTextAlign(Align.CENTER);
@@ -150,10 +151,10 @@ public class AmPmCirclesView extends View {
         int pmAlpha = 255;
         if (mAmOrPm == AM) {
             amColor = mBlue;
-            amAlpha = 45;
+            amAlpha = 38;
         } else if (mAmOrPm == PM) {
             pmColor = mBlue;
-            pmAlpha = 45;
+            pmAlpha = 38;
         }
         if (mAmOrPmPressed == AM) {
             amColor = mBlue;
@@ -170,7 +171,7 @@ public class AmPmCirclesView extends View {
         mPaint.setAlpha(pmAlpha);
         canvas.drawCircle(mPmXCenter, mAmPmYCenter, mAmPmCircleRadius, mPaint);
 
-        mPaint.setColor(mDarkGray);
+        mPaint.setColor(mBlack50);
         int textYCenter = mAmPmYCenter - (int) (mPaint.descent() + mPaint.ascent()) / 2;
         canvas.drawText(mAmText, mAmXCenter, textYCenter, mPaint);
         canvas.drawText(mPmText, mPmXCenter, textYCenter, mPaint);

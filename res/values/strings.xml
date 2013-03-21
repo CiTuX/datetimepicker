@@ -23,4 +23,8 @@
     <string name="done_label">Done</string>
     <string name="am_label">AM</string>
     <string name="pm_label">PM</string>
+
+    <!-- DO NOT TRANSLATE -->
+    <string name="radial_numbers_typeface">sans-serif</string>
+    <string name="sans_serif">sans-serif</string>
 </resources>

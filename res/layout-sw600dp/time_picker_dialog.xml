@@ -89,7 +89,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dip"
-        android:background="@color/lighter_gray" />
+        android:background="@color/black_20" />
     <LinearLayout
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"

@@ -16,7 +16,11 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Style for dialog labels. -->
-    <style name="label">
+    <style name="time_label_thin">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="done_button_light">
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 </resources>
