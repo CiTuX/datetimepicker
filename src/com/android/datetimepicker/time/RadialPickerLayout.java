@@ -14,45 +14,45 @@
  * limitations under the License.
  */
 
-package com.android.datetimepicker;
+package com.android.datetimepicker.time;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Typeface;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.MeasureSpec;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
-import android.view.animation.AnimationSet;
-import android.view.animation.TranslateAnimation;
+import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 
 import com.android.datetimepicker.R;
 
-public class TimePicker extends FrameLayout implements OnTouchListener {
+public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
     private static final String TAG = "TimePicker";
 
     private final int TOUCH_SLOP;
     private final int TAP_TIMEOUT;
-    private final int PRESSED_STATE_DURATION;
     private static final int HOUR_VALUE_TO_DEGREES_STEP_SIZE = 30;
     private static final int MINUTE_VALUE_TO_DEGREES_STEP_SIZE = 6;
     private static final int HOUR_INDEX = TimePickerDialog.HOUR_INDEX;
     private static final int MINUTE_INDEX = TimePickerDialog.MINUTE_INDEX;
     private static final int AMPM_INDEX = TimePickerDialog.AMPM_INDEX;
+    private static final int ENABLE_PICKER_INDEX = TimePickerDialog.ENABLE_PICKER_INDEX;
     private static final int AM = TimePickerDialog.AM;
     private static final int PM = TimePickerDialog.PM;
 
@@ -65,6 +65,7 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
     private int mCurrentHoursOfDay;
     private int mCurrentMinutes;
     private boolean mIs24HourMode;
+    private boolean mHideAmPm;
     private int mCurrentItemShowing;
 
     private CircleView mCircleView;
@@ -73,14 +74,16 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
     private RadialTextsView mMinuteRadialTextsView;
     private RadialSelectorView mHourRadialSelectorView;
     private RadialSelectorView mMinuteRadialSelectorView;
+    private View mGrayBox;
 
+    private boolean mInputEnabled;
     private int mIsTouchingAmOrPm = -1;
     private boolean mDoingMove;
+    private boolean mDoingTouch;
     private int mDownDegrees;
     private float mDownX;
     private float mDownY;
-
-    private ReselectSelectorRunnable mReselectSelectorRunnable;
+    private AccessibilityManager mAccessibilityManager;
 
     private Handler mHandler = new Handler();
 
@@ -88,14 +91,13 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
         void onValueSelected(int pickerIndex, int newValue, boolean autoAdvance);
     }
 
-    public TimePicker(Context context, AttributeSet attrs) {
+    public RadialPickerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         setOnTouchListener(this);
         ViewConfiguration vc = ViewConfiguration.get(context);
         TOUCH_SLOP = vc.getScaledTouchSlop();
         TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
-        PRESSED_STATE_DURATION = ViewConfiguration.getPressedStateDuration();
         mDoingMove = false;
 
         mCircleView = new CircleView(context);
@@ -114,13 +116,21 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
         mMinuteRadialSelectorView = new RadialSelectorView(context);
         addView(mMinuteRadialSelectorView);
 
-        mReselectSelectorRunnable = new ReselectSelectorRunnable(this);
-
         mVibrator = (Vibrator) context.getSystemService(Service.VIBRATOR_SERVICE);
         mLastVibrate = 0;
         mLastValueSelected = -1;
 
         mTimeInitialized = false;
+
+        mInputEnabled = true;
+        mGrayBox = new View(context);
+        mGrayBox.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mGrayBox.setBackgroundColor(getResources().getColor(R.color.black_50));
+        mGrayBox.setVisibility(View.INVISIBLE);
+        addView(mGrayBox);
+
+        mAccessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
     }
 
     @Override
@@ -141,39 +151,65 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
             Log.e(TAG, "Time has already been initialized.");
             return;
         }
-
-        setValueForItem(HOUR_INDEX, initialHoursOfDay);
-        setValueForItem(MINUTE_INDEX, initialMinutes);
         mIs24HourMode = is24HourMode;
+        mHideAmPm = mAccessibilityManager.isTouchExplorationEnabled()? true : mIs24HourMode;
 
-        mCircleView.initialize(context, is24HourMode);
+        mCircleView.initialize(context, mHideAmPm);
         mCircleView.invalidate();
-        if (!is24HourMode) {
+        if (!mHideAmPm) {
             mAmPmCirclesView.initialize(context, initialHoursOfDay < 12? AM : PM);
             mAmPmCirclesView.invalidate();
         }
 
         Resources res = context.getResources();
-        String[] hoursTexts = res.getStringArray(is24HourMode? R.array.hours_24 : R.array.hours);
-        String[] innerHoursTexts = res.getStringArray(R.array.hours);
-        String[] minutesTexts = res.getStringArray(R.array.minutes);
+        int[] hours = {12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        int[] hours_24 = {0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+        int[] minutes = {0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55};
+        String[] hoursTexts = new String[12];
+        String[] innerHoursTexts = new String[12];
+        String[] minutesTexts = new String[12];
+        for (int i = 0; i < 12; i++) {
+            hoursTexts[i] = is24HourMode?
+                    String.format("%02d", hours_24[i]) : String.format("%d", hours[i]);
+            innerHoursTexts[i] = String.format("%d", hours[i]);
+            minutesTexts[i] = String.format("%02d", minutes[i]);
+        }
         mHourRadialTextsView.initialize(res,
-                hoursTexts, (is24HourMode? innerHoursTexts : null), is24HourMode, true);
+                hoursTexts, (is24HourMode? innerHoursTexts : null), mHideAmPm, true);
         mHourRadialTextsView.invalidate();
-        mMinuteRadialTextsView.initialize(res, minutesTexts, null, is24HourMode, false);
+        mMinuteRadialTextsView.initialize(res, minutesTexts, null, mHideAmPm, false);
         mMinuteRadialTextsView.invalidate();
 
-        int initialHourDegrees = (initialHoursOfDay % 12) * HOUR_VALUE_TO_DEGREES_STEP_SIZE;
-        int initialMinuteDegrees = initialMinutes * MINUTE_VALUE_TO_DEGREES_STEP_SIZE;
-        mHourRadialSelectorView.initialize(context, initialHourDegrees,
-                is24HourMode, is24HourMode, isHourInnerCircle(initialHoursOfDay), true);
-        mHourRadialSelectorView.invalidate();
-        mMinuteRadialSelectorView.initialize(context, initialMinuteDegrees,
-                is24HourMode, false, false, false);
-        mHourRadialSelectorView.invalidate();
-
+        setValueForItem(HOUR_INDEX, initialHoursOfDay);
+        setValueForItem(MINUTE_INDEX, initialMinutes);
+        int hourDegrees = (initialHoursOfDay % 12) * HOUR_VALUE_TO_DEGREES_STEP_SIZE;
+        mHourRadialSelectorView.initialize(context, mHideAmPm, is24HourMode, true,
+                hourDegrees, isHourInnerCircle(initialHoursOfDay));
+        int minuteDegrees = initialMinutes * MINUTE_VALUE_TO_DEGREES_STEP_SIZE;
+        mMinuteRadialSelectorView.initialize(context, mHideAmPm, false, false,
+                minuteDegrees, false);
 
         mTimeInitialized = true;
+    }
+
+    public void setTime(int hours, int minutes) {
+        setItem(HOUR_INDEX, hours);
+        setItem(MINUTE_INDEX, minutes);
+    }
+
+    private void setItem(int index, int value) {
+        if (index == HOUR_INDEX) {
+            setValueForItem(HOUR_INDEX, value);
+            int hourDegrees = (value % 12) * HOUR_VALUE_TO_DEGREES_STEP_SIZE;
+            mHourRadialSelectorView.setSelection(hourDegrees, isHourInnerCircle(value),
+                    false, false, false);
+            mHourRadialSelectorView.invalidate();
+        } else if (index == MINUTE_INDEX) {
+            setValueForItem(MINUTE_INDEX, value);
+            int minuteDegrees = value * MINUTE_VALUE_TO_DEGREES_STEP_SIZE;
+            mMinuteRadialSelectorView.setSelection(minuteDegrees, false, false, false, false);
+            mMinuteRadialSelectorView.invalidate();
+        }
     }
 
     private boolean isHourInnerCircle(int hourOfDay) {
@@ -229,38 +265,63 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
         setValueForItem(AMPM_INDEX, amOrPm);
     }
 
-    private int reselectSelector(int index, int degrees, boolean isInnerCircle,
-            boolean forceNotFineGrained, boolean forceDrawLine, boolean forceDrawDot) {
-        if (degrees == -1 || (index != 0 && index != 1)) {
-            return -1;
-        }
+    private int highPass30sFilter(int degrees) {
+        int offset = (degrees + 2) / 30;
+        degrees = Math.max(degrees - (30*offset + 4), 0) + 20*offset;
+        degrees /= 4;
+        degrees *= 6;
+        /* // less aggressive filtering.
+        degrees /= 5;
+        int offset = degrees / 6;
+        degrees = degrees - offset;
+        degrees *= 6; */
+        return degrees;
+    }
 
-        int stepSize;
-        int currentShowing = getCurrentItemShowing();
-        if (!forceNotFineGrained && (currentShowing == 1)) {
-            stepSize = MINUTE_VALUE_TO_DEGREES_STEP_SIZE;
-        } else {
-            stepSize = HOUR_VALUE_TO_DEGREES_STEP_SIZE;
-        }
+    private int snapToStepSize(int degrees, int stepSize, int ceilingOrFloor) {
         int floor = (degrees / stepSize) * stepSize;
         int ceiling = floor + stepSize;
-        if ((degrees - floor) < (ceiling - degrees)) {
+        if (ceilingOrFloor == 1) {
+            degrees = ceiling;
+        } else if (ceilingOrFloor == -1) {
+            if (degrees == floor) {
+                floor -= stepSize;
+            }
             degrees = floor;
         } else {
-            degrees = ceiling;
+            if ((degrees - floor) < (ceiling - degrees)) {
+                degrees = floor;
+            } else {
+                degrees = ceiling;
+            }
+        }
+        return degrees;
+    }
+
+    private int reselectSelector(int degrees, boolean isInnerCircle,
+            boolean forceNotFineGrained, boolean forceDrawLine, boolean forceDrawDot) {
+        if (degrees == -1) {
+            return -1;
+        }
+        int currentShowing = getCurrentItemShowing();
+
+        int stepSize;
+        boolean allowFineGrained = !forceNotFineGrained && (currentShowing == MINUTE_INDEX);
+        if (allowFineGrained) {
+            degrees = highPass30sFilter(degrees);
+        } else {
+            degrees = snapToStepSize(degrees, HOUR_VALUE_TO_DEGREES_STEP_SIZE, 0);
         }
 
         RadialSelectorView radialSelectorView;
-        if (index == 0) {
-            // Index == 0, hours.
+        if (currentShowing == HOUR_INDEX) {
             radialSelectorView = mHourRadialSelectorView;
             stepSize = HOUR_VALUE_TO_DEGREES_STEP_SIZE;
         } else {
-            // Index == 1, minutes.
             radialSelectorView = mMinuteRadialSelectorView;
             stepSize = MINUTE_VALUE_TO_DEGREES_STEP_SIZE;
         }
-        radialSelectorView.setSelection(degrees, isInnerCircle, forceDrawLine, forceDrawDot);
+        radialSelectorView.setSelection(degrees, isInnerCircle, forceDrawLine, forceDrawDot, false);
         radialSelectorView.invalidate();
 
 
@@ -288,10 +349,10 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
     private int getDegreesFromCoords(float pointX, float pointY, boolean forceLegal,
             final Boolean[] isInnerCircle) {
         int currentItem = getCurrentItemShowing();
-        if (currentItem == 0) {
+        if (currentItem == HOUR_INDEX) {
             return mHourRadialSelectorView.getDegreesFromCoords(
                     pointX, pointY, forceLegal, isInnerCircle);
-        } else if (currentItem == 1) {
+        } else if (currentItem == MINUTE_INDEX) {
             return mMinuteRadialSelectorView.getDegreesFromCoords(
                     pointX, pointY, forceLegal, isInnerCircle);
         } else {
@@ -313,7 +374,10 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
             return;
         }
 
-        if (animate && (index != getCurrentItemShowing())) {
+        int lastIndex = getCurrentItemShowing();
+        mCurrentItemShowing = index;
+
+        if (animate && (index != lastIndex)) {
             ObjectAnimator[] anims = new ObjectAnimator[4];
             if (index == MINUTE_INDEX) {
                 anims[0] = mHourRadialTextsView.getDisappearAnimator();
@@ -331,15 +395,14 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
             transition.playTogether(anims);
             transition.start();
         } else {
-            int hourAlpha = (index == 0) ? 255 : 0;
-            int minuteAlpha = (index == 1) ? 255 : 0;
+            int hourAlpha = (index == HOUR_INDEX) ? 255 : 0;
+            int minuteAlpha = (index == MINUTE_INDEX) ? 255 : 0;
             mHourRadialTextsView.setAlpha(hourAlpha);
             mHourRadialSelectorView.setAlpha(hourAlpha);
             mMinuteRadialTextsView.setAlpha(minuteAlpha);
             mMinuteRadialSelectorView.setAlpha(minuteAlpha);
         }
 
-        mCurrentItemShowing = index;
     }
 
     @Override
@@ -348,7 +411,6 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
         final float eventY = event.getY();
         int degrees;
         int value;
-        final int currentShowing = getCurrentItemShowing();
         final Boolean[] isInnerCircle = new Boolean[1];
         isInnerCircle[0] = false;
 
@@ -356,12 +418,17 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
 
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                if (!mInputEnabled) {
+                    return true;
+                }
+
                 mDownX = eventX;
                 mDownY = eventY;
 
                 mLastValueSelected = -1;
                 mDoingMove = false;
-                if (!mIs24HourMode) {
+                mDoingTouch = true;
+                if (!mHideAmPm) {
                     mIsTouchingAmOrPm = mAmPmCirclesView.getIsTouchingAmOrPm(eventX, eventY);
                 } else {
                     mIsTouchingAmOrPm = -1;
@@ -377,16 +444,17 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
                         }
                     }, TAP_TIMEOUT);
                 } else {
-                    mDownDegrees = getDegreesFromCoords(eventX, eventY, false, isInnerCircle);
+                    boolean forceLegal = mAccessibilityManager.isTouchExplorationEnabled();
+                    mDownDegrees = getDegreesFromCoords(eventX, eventY, forceLegal, isInnerCircle);
                     if (mDownDegrees != -1) {
-                        tryTick();
-                        mLastValueSelected = getCurrentlyShowingValue();
+                        tryVibrate();
                         mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 mDoingMove = true;
-                                int value = reselectSelector(currentShowing, mDownDegrees,
+                                int value = reselectSelector(mDownDegrees,
                                         isInnerCircle[0], false, true, true);
+                                mLastValueSelected = value;
                                 mListener.onValueSelected(getCurrentItemShowing(), value, false);
                             }
                         }, TAP_TIMEOUT);
@@ -394,6 +462,12 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
+                if (!mInputEnabled) {
+                    // We shouldn't be in this state, because input is disabled.
+                    Log.e(TAG, "Input was disabled, but received ACTION_MOVE.");
+                    return true;
+                }
+
                 float dY = Math.abs(eventY - mDownY);
                 float dX = Math.abs(eventX - mDownX);
 
@@ -425,17 +499,24 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
                 mHandler.removeCallbacksAndMessages(null);
                 degrees = getDegreesFromCoords(eventX, eventY, true, isInnerCircle);
                 if (degrees != -1) {
-                    value = reselectSelector(currentShowing, degrees,
+                    value = reselectSelector(degrees,
                             isInnerCircle[0], false, true, true);
                     if (value != mLastValueSelected) {
-                        tryTick();
+                        tryVibrate();
                         mLastValueSelected = value;
+                        mListener.onValueSelected(getCurrentItemShowing(), value, false);
                     }
-                    mListener.onValueSelected(getCurrentItemShowing(), value, false);
                 }
                 return true;
             case MotionEvent.ACTION_UP:
+                if (!mInputEnabled) {
+                    Log.d(TAG, "Input was disabled, but received ACTION_UP.");
+                    mListener.onValueSelected(ENABLE_PICKER_INDEX, 1, false);
+                    return true;
+                }
+
                 mHandler.removeCallbacksAndMessages(null);
+                mDoingTouch = false;
 
                 if (mIsTouchingAmOrPm == AM || mIsTouchingAmOrPm == PM) {
                     int isTouchingAmOrPm = mAmPmCirclesView.getIsTouchingAmOrPm(eventX, eventY);
@@ -456,11 +537,9 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
                 if (mDownDegrees != -1) {
                     degrees = getDegreesFromCoords(eventX, eventY, mDoingMove, isInnerCircle);
                     if (degrees != -1) {
-                        value = reselectSelector(currentShowing, degrees, isInnerCircle[0],
+                        value = reselectSelector(degrees, isInnerCircle[0],
                                 !mDoingMove, true, false);
-                        mListener.onValueSelected(getCurrentItemShowing(), value, true);
-
-                        if (currentShowing == HOUR_INDEX && !mIs24HourMode) {
+                        if (getCurrentItemShowing() == HOUR_INDEX && !mIs24HourMode) {
                             int amOrPm = getIsCurrentlyAmOrPm();
                             if (amOrPm == AM && value == 12) {
                                 value = 0;
@@ -469,6 +548,7 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
                             }
                         }
                         setValueForItem(getCurrentItemShowing(), value);
+                        mListener.onValueSelected(getCurrentItemShowing(), value, true);
                     }
                 }
                 mDoingMove = false;
@@ -479,47 +559,105 @@ public class TimePicker extends FrameLayout implements OnTouchListener {
         return false;
     }
 
-    private class ReselectSelectorRunnable implements Runnable {
-        TimePicker mTimePicker;
-        private int mIndex;
-        private int mDegrees;
-        private boolean mIsInnerCircle;
-        private boolean mForceNotFineGrained;
-        private boolean mForceDrawLine;
-        private boolean mForceDrawDot;
-
-        public ReselectSelectorRunnable(TimePicker timePicker) {
-            mTimePicker = timePicker;
-        }
-
-        public void initializeValues(int index, int degrees, boolean isInnerCircle,
-                boolean forceNotFineGrained, boolean forceDrawLine, boolean forceDrawDot) {
-            mIndex = index;
-            mDegrees = degrees;
-            mIsInnerCircle = isInnerCircle;
-            mForceNotFineGrained = forceNotFineGrained;
-            mForceDrawDot = forceDrawDot;
-        }
-
-        @Override
-        public void run() {
-            mTimePicker.reselectSelector(mIndex, mDegrees, mIsInnerCircle, mForceNotFineGrained,
-                    mForceDrawLine, mForceDrawDot);
-        }
-    }
-
     public void tryVibrate() {
         if (mVibrator != null) {
             long now = SystemClock.uptimeMillis();
             // We want to try to vibrate each individual tick discretely.
-            if (now - mLastVibrate >= 100) {
+            if (now - mLastVibrate >= 125) {
                 mVibrator.vibrate(5);
                 mLastVibrate = now;
             }
         }
     }
 
-    public void tryTick() {
-        tryVibrate();
+    public boolean trySettingInputEnabled(boolean inputEnabled) {
+        if (mDoingTouch && !inputEnabled) {
+            // If we're trying to disable input, but we're in the middle of a touch event,
+            // we'll allow the touch event to continue before disabling input.
+            return false;
+        }
+        mInputEnabled = inputEnabled;
+        mGrayBox.setVisibility(inputEnabled? View.INVISIBLE : View.VISIBLE);
+        return true;
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+      super.onInitializeAccessibilityNodeInfo(info);
+      info.addAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
+      info.addAction(AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD);
+    }
+
+    @Override
+    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+        if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            event.getText().clear();
+            Time time = new Time();
+            time.hour = getHours();
+            time.minute = getMinutes();
+            long millis = time.normalize(true);
+            int flags = DateUtils.FORMAT_SHOW_TIME;
+            if (mIs24HourMode) {
+                flags |= DateUtils.FORMAT_24HOUR;
+            }
+            String timeString = DateUtils.formatDateTime(getContext(), millis, flags);
+            event.getText().add(timeString);
+            return true;
+        }
+        return super.dispatchPopulateAccessibilityEvent(event);
+    }
+
+    @SuppressLint("NewApi")
+    @Override
+    public boolean performAccessibilityAction(int action, Bundle arguments) {
+        if (super.performAccessibilityAction(action, arguments)) {
+            return true;
+        }
+
+        int changeMultiplier = 0;
+        if (action == AccessibilityNodeInfo.ACTION_SCROLL_FORWARD) {
+            changeMultiplier = 1;
+        } else if (action == AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD) {
+            changeMultiplier = -1;
+        }
+        if (changeMultiplier != 0) {
+            int value = getCurrentlyShowingValue();
+            int stepSize = 0;
+            int currentItemShowing = getCurrentItemShowing();
+            if (currentItemShowing == HOUR_INDEX) {
+                stepSize = HOUR_VALUE_TO_DEGREES_STEP_SIZE;
+                value %= 12;
+            } else if (currentItemShowing == MINUTE_INDEX) {
+                stepSize = MINUTE_VALUE_TO_DEGREES_STEP_SIZE;
+            }
+
+            int degrees = value * stepSize;
+            degrees = snapToStepSize(degrees, HOUR_VALUE_TO_DEGREES_STEP_SIZE, changeMultiplier);
+            value = degrees / stepSize;
+            int maxValue = 0;
+            int minValue = 0;
+            if (currentItemShowing == HOUR_INDEX) {
+                if (mIs24HourMode) {
+                    maxValue = 23;
+                } else {
+                    maxValue = 12;
+                    minValue = 1;
+                }
+            } else {
+                maxValue = 55;
+            }
+            if (value > maxValue) {
+                // If we scrolled forward past the highest number, wrap around to the lowest.
+                value = minValue;
+            } else if (value < minValue) {
+                // If we scrolled backward past the lowest number, wrap around to the highest.
+                value = maxValue;
+            }
+            setItem(currentItemShowing, value);
+            mListener.onValueSelected(currentItemShowing, value, false);
+            return true;
+        }
+
+        return false;
     }
 }

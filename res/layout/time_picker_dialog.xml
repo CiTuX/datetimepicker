@@ -18,74 +18,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/gray" >
+    android:background="@color/black_03"
+    android:id="@+id/time_picker_dialog"
+    android:focusable="true" >
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/header_height"
         android:background="@color/white" >
-        <RelativeLayout
+        <include
+            layout="@layout/time_header_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center" >
-            <View
-                android:id="@+id/empty_view"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:background="#00000000"
-                android:layout_centerInParent="true" />
-            <TextView
-                android:id="@+id/hours"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/time_placeholder"
-                android:textColor="@color/blue"
-                android:layout_toLeftOf="@+id/separator"
-                android:layout_centerVertical="true"
-                style="@style/time_label" />
-            <TextView
-                android:id="@+id/separator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/time_separator"
-                android:paddingLeft="@dimen/separator_padding"
-                android:paddingRight="@dimen/separator_padding"
-                android:layout_alignRight="@+id/empty_view"
-                android:layout_centerVertical="true"
-                style="@style/time_label" />
-            <TextView
-                android:id="@+id/minutes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/time_placeholder"
-                android:layout_toRightOf="@+id/separator"
-                android:layout_centerVertical="true"
-                style="@style/time_label" />
-            <View
-                android:id="@+id/ampm_hitspace"
-                android:layout_width="@dimen/ampm_label_size"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/minutes"
-                android:layout_alignBottom="@+id/minutes"
-                android:layout_alignLeft="@+id/ampm_label"
-                android:layout_alignRight="@+id/ampm_label" />
-            <TextView
-                android:id="@+id/ampm_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/time_placeholder"
-                android:paddingLeft="@dimen/ampm_left_padding"
-                android:paddingRight="@dimen/ampm_left_padding"
-                android:layout_toRightOf="@+id/minutes"
-                android:layout_alignBaseline="@+id/minutes"
-                style="@style/ampm_label" />
-        </RelativeLayout>
+            android:layout_gravity="center" />
     </FrameLayout>
-    <com.android.datetimepicker.TimePicker
+    <com.android.datetimepicker.time.RadialPickerLayout
         android:id="@+id/time_picker"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
-        android:gravity="center" />
+        android:gravity="center"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dip"

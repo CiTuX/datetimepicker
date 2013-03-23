@@ -16,7 +16,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.datetimepicker"
     android:versionCode="1" >
-    <uses-sdk android:maxSdkVersion="17" android:minSdkVersion="14"/>
+    <uses-sdk android:maxSdkVersion="17" android:minSdkVersion="15"/>
 
     <uses-permission android:name="android.permission.VIBRATE" />
 </manifest>

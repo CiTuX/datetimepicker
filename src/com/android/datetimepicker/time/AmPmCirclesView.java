@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.datetimepicker;
+package com.android.datetimepicker.time;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -22,13 +22,12 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.Paint.Align;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 
 import com.android.datetimepicker.R;
+
+import java.text.DateFormatSymbols;
 
 public class AmPmCirclesView extends View {
     private static final String TAG = "AmPmCirclesView";
@@ -79,8 +78,9 @@ public class AmPmCirclesView extends View {
                 Float.parseFloat(res.getString(R.string.circle_radius_multiplier));
         mAmPmCircleRadiusMultiplier =
                 Float.parseFloat(res.getString(R.string.ampm_circle_radius_multiplier));
-        mAmText = res.getString(R.string.am_label);
-        mPmText = res.getString(R.string.pm_label);
+        String[] amPmTexts = new DateFormatSymbols().getAmPmStrings();
+        mAmText = amPmTexts[0];
+        mPmText = amPmTexts[1];
 
         setAmOrPm(amOrPm);
         mAmOrPmPressed = -1;

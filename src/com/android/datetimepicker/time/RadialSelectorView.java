@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.datetimepicker;
+package com.android.datetimepicker.time;
 
 import android.animation.Keyframe;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.app.Service;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.os.SystemClock;
-import android.os.Vibrator;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 
 import com.android.datetimepicker.R;
 
@@ -66,6 +59,7 @@ public class RadialSelectorView extends View {
 
     private int mSelectionDegrees;
     private double mSelectionRadians;
+    private boolean mHideSelector;
     private boolean mDrawLine;
     private boolean mForceDrawDot;
 
@@ -74,8 +68,8 @@ public class RadialSelectorView extends View {
         mIsInitialized = false;
     }
 
-    public void initialize(Context context, int selectionDegrees, boolean is24HourMode,
-            boolean hasInnerCircle, boolean isInnerCircle, boolean disappearsOut) {
+    public void initialize(Context context, boolean is24HourMode, boolean hasInnerCircle,
+            boolean disappearsOut, int selectionDegrees, boolean isInnerCircle) {
         if (mIsInitialized) {
             Log.e(TAG, "This RadialSelectorView may only be initialized once.");
             return;
@@ -111,18 +105,17 @@ public class RadialSelectorView extends View {
         mSelectionRadiusMultiplier =
                 Float.parseFloat(res.getString(R.string.selection_radius_multiplier));
 
-        setSelection(selectionDegrees, isInnerCircle, false, false);
-
         mAnimationRadiusMultiplier = 1;
         mTransitionMidRadiusMultiplier = 1f + (0.05f * (disappearsOut? -1 : 1));
         mTransitionEndRadiusMultiplier = 1f + (0.3f * (disappearsOut? 1 : -1));
         mInvalidateUpdateListener = new InvalidateUpdateListener();
 
+        setSelection(selectionDegrees, isInnerCircle, false, false, false);
         mIsInitialized = true;
     }
 
     public void setSelection(int selectionDegrees, boolean isInnerCircle,
-            boolean drawLine, boolean forceDrawDot) {
+            boolean drawLine, boolean forceDrawDot, boolean hideSelector) {
         mSelectionDegrees = selectionDegrees;
         mSelectionRadians = selectionDegrees * Math.PI / 180;
         mDrawLine = drawLine;
@@ -135,6 +128,7 @@ public class RadialSelectorView extends View {
                 mNumbersRadiusMultiplier = mOuterNumbersRadiusMultiplier;
             }
         }
+        mHideSelector = hideSelector;
     }
 
     public void setDrawLine(boolean drawLine) {
@@ -252,6 +246,10 @@ public class RadialSelectorView extends View {
         }
 
         mLineLength = (int) (mCircleRadius * mNumbersRadiusMultiplier * mAnimationRadiusMultiplier);
+        if (mHideSelector) {
+            return;
+        }
+
         int pointX = mXCenter + (int) (mLineLength * Math.sin(mSelectionRadians));
         int pointY = mYCenter - (int) (mLineLength * Math.cos(mSelectionRadians));
 
@@ -316,8 +314,8 @@ public class RadialSelectorView extends View {
         // The time points are half of what they would normally be, because this animation is
         // staggered against the disappear so they happen seamlessly. The reappear starts
         // halfway into the disappear.
-        float delayMultiplier = 0.5f;
-        float transitionDurationMultiplier = 0.75f;
+        float delayMultiplier = 0.25f;
+        float transitionDurationMultiplier = 1f;
         float totalDurationMultiplier = transitionDurationMultiplier + delayMultiplier;
         int totalDuration = (int) (duration * totalDurationMultiplier);
         float delayPoint = (delayMultiplier * duration) / totalDuration;

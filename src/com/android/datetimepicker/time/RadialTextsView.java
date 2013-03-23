@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.datetimepicker;
+package com.android.datetimepicker.time;
 
 import android.animation.Keyframe;
 import android.animation.ObjectAnimator;
@@ -27,11 +27,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.Paint.Align;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 
 import com.android.datetimepicker.R;
 
@@ -274,8 +271,8 @@ public class RadialTextsView extends View {
 
 
         // Set up animator for reappearing.
-        float delayMultiplier = 0.5f;
-        float transitionDurationMultiplier = 0.75f;
+        float delayMultiplier = 0.25f;
+        float transitionDurationMultiplier = 1f;
         float totalDurationMultiplier = transitionDurationMultiplier + delayMultiplier;
         int totalDuration = (int) (duration * totalDurationMultiplier);
         float delayPoint = (delayMultiplier * duration) / totalDuration;

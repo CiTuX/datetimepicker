@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.datetimepicker;
+package com.android.datetimepicker.time;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Typeface;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 
 import com.android.datetimepicker.R;
 

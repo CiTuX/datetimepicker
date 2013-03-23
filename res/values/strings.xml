@@ -16,15 +16,19 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">TimePicker</string>
-
-    <string name="trailing_hour_digit">1</string>
-    <string name="time_placeholder">--</string>
-    <string name="time_separator">:</string>
     <string name="done_label">Done</string>
-    <string name="am_label">AM</string>
-    <string name="pm_label">PM</string>
+    <string name="hour_picker_description">Hours circular slider</string>
+    <string name="minute_picker_description">Minutes circular slider</string>
+    <string name="select_hours">Select hours</string>
+    <string name="select_minutes">Select minutes</string>
+
+    <!-- DO NOT TRANSLATE -->
+    <string name="time_placeholder">--</string>
+    <!-- DO NOT TRANSLATE -->
+    <string name="time_separator">:</string>
 
     <!-- DO NOT TRANSLATE -->
     <string name="radial_numbers_typeface">sans-serif</string>
+    <!-- DO NOT TRANSLATE -->
     <string name="sans_serif">sans-serif</string>
 </resources>

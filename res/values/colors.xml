@@ -16,7 +16,7 @@
 
 <resources>
     <color name="white">#ffffff</color>
-    <color name="gray">#08000000</color>
+    <color name="black_03">#08000000</color>
     <color name="black_20">#33000000</color>
     <color name="black_50">#7F000000</color>
     <color name="black_60">#99000000</color>
