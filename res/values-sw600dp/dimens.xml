@@ -20,15 +20,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" 
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <dimen name="time_label_right_padding">34sp</dimen>
-    <dimen name="time_label_size">96sp</dimen>
-    <dimen name="ampm_label_size">32sp</dimen>
-    <dimen name="done_label_size">21sp</dimen>
-    <dimen name="ampm_left_padding">16dip</dimen>
-    <dimen name="separator_padding">8dip</dimen>
-    <dimen name="header_height">144dip</dimen>
-    <dimen name="footer_height">72dip</dimen>
-
     <dimen name="pager_height">400dp</dimen>
     <dimen name="pager_width">400dp</dimen>
     <dimen name="date_picker_width">400dp</dimen>
@@ -48,4 +39,14 @@
     <dimen name="day_number_size">24sp</dimen>
     <dimen name="month_day_label_text_size">15sp</dimen>
 
+    <dimen name="time_label_size">75sp</dimen>
+    <dimen name="ampm_label_size">20sp</dimen>
+    <dimen name="ampm_left_padding">8dip</dimen>
+    <dimen name="separator_padding">5dip</dimen>
+    <dimen name="header_height">120dip</dimen>
+    <dimen name="footer_height">60dip</dimen>
+    <dimen name="minimum_margin_sides">48dip</dimen>
+    <dimen name="minimum_margin_top_bottom">24dip</dimen>
+
+    <dimen name="picker_dimen">375dip</dimen>
 </resources>

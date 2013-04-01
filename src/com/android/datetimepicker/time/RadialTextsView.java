@@ -32,6 +32,9 @@ import android.view.View;
 
 import com.android.datetimepicker.R;
 
+/**
+ * A view to show a series of numbers in a circular pattern.
+ */
 public class RadialTextsView extends View {
     private final static String TAG = "RadialTextsView";
 
@@ -83,8 +86,9 @@ public class RadialTextsView extends View {
             return;
         }
 
-        int black80 = res.getColor(R.color.black_80);
-        mPaint.setColor(black80);
+        // Set up the paint.
+        int numbersTextColor = res.getColor(R.color.numbers_text_color);
+        mPaint.setColor(numbersTextColor);
         String typefaceFamily = res.getString(R.string.radial_numbers_typeface);
         mTypefaceLight = Typeface.create(typefaceFamily, Typeface.NORMAL);
         String typefaceFamilyRegular = res.getString(R.string.sans_serif);
@@ -97,6 +101,7 @@ public class RadialTextsView extends View {
         mIs24HourMode = is24HourMode;
         mHasInnerCircle = (innerTexts != null);
 
+        // Calculate the radius for the main circle.
         if (is24HourMode) {
             mCircleRadiusMultiplier = Float.parseFloat(
                     res.getString(R.string.circle_radius_multiplier_24HourMode));
@@ -107,6 +112,7 @@ public class RadialTextsView extends View {
                     Float.parseFloat(res.getString(R.string.ampm_circle_radius_multiplier));
         }
 
+        // Initialize the widths and heights of the grid, and calculate the values for the numbers.
         mTextGridHeights = new float[7];
         mTextGridWidths = new float[7];
         if (mHasInnerCircle) {
@@ -137,11 +143,17 @@ public class RadialTextsView extends View {
         mIsInitialized = true;
     }
 
+    /**
+     * Allows for smoother animation.
+     */
     @Override
     public boolean hasOverlappingRendering() {
         return false;
     }
 
+    /**
+     * Used by the animation to move the numbers in and out.
+     */
     public void setAnimationRadiusMultiplier(float animationRadiusMultiplier) {
         mAnimationRadiusMultiplier = animationRadiusMultiplier;
         mTextGridValuesDirty = true;
@@ -171,20 +183,23 @@ public class RadialTextsView extends View {
                 mInnerTextSize = mCircleRadius * mInnerTextSizeMultiplier;
             }
 
-            // Set up the spots for the animation.
+            // Because the text positions will be static, pre-render the animations.
             renderAnimations();
 
             mTextGridValuesDirty = true;
             mDrawValuesReady = true;
         }
 
+        // Calculate the text positions, but only if they've changed since the last onDraw.
         if (mTextGridValuesDirty) {
             float numbersRadius =
                     mCircleRadius * mNumbersRadiusMultiplier * mAnimationRadiusMultiplier;
 
+            // Calculate the positions for the 12 numbers in the main circle.
             calculateGridSizes(numbersRadius, mXCenter, mYCenter,
                     mTextSize, mTextGridHeights, mTextGridWidths);
             if (mHasInnerCircle) {
+                // If we have an inner circle, calculate those positions too.
                 float innerNumbersRadius =
                         mCircleRadius * mInnerNumbersRadiusMultiplier * mAnimationRadiusMultiplier;
                 calculateGridSizes(innerNumbersRadius, mXCenter, mYCenter,
@@ -193,6 +208,7 @@ public class RadialTextsView extends View {
             mTextGridValuesDirty = false;
         }
 
+        // Draw the texts in the pre-calculated positions.
         drawTexts(canvas, mTextSize, mTypefaceLight, mTexts, mTextGridWidths, mTextGridHeights);
         if (mHasInnerCircle) {
             drawTexts(canvas, mInnerTextSize, mTypefaceRegular, mInnerTexts,
@@ -200,21 +216,25 @@ public class RadialTextsView extends View {
         }
     }
 
+    /**
+     * Using the trigonometric Unit Circle, calculate the positions that the text will need to be
+     * drawn at based on the specified circle radius. Place the values in the textGridHeights and
+     * textGridWidths parameters.
+     */
     private void calculateGridSizes(float numbersRadius, float xCenter, float yCenter,
             float textSize, float[] textGridHeights, float[] textGridWidths) {
         /*
-         * In the interest of efficient drawing, the following formulas have been simplified
-         * as much as possible.
-         * The numbers need to be drawn in a 7x7 grid representing the points on the Unit Circle.
+         * The numbers need to be drawn in a 7x7 grid, representing the points on the Unit Circle.
          */
         float offset1 = numbersRadius;
         // cos(30) = a / r => r * cos(30) = a => r * √3/2 = a
         float offset2 = numbersRadius * ((float) Math.sqrt(3)) / 2f;
         // sin(30) = o / r => r * sin(30) = o => r / 2 = a
         float offset3 = numbersRadius / 2f;
-        // We'll need yTextBase to be slightly lower to account for the text's baseline.
         mPaint.setTextSize(textSize);
+        // We'll need yTextBase to be slightly lower to account for the text's baseline.
         yCenter -= (mPaint.descent() + mPaint.ascent()) / 2;
+
         textGridHeights[0] = yCenter - offset1;
         textGridWidths[0] = xCenter - offset1;
         textGridHeights[1] = yCenter - offset2;
@@ -231,6 +251,9 @@ public class RadialTextsView extends View {
         textGridWidths[6] = xCenter + offset1;
     }
 
+    /**
+     * Draw the 12 text values at the positions specified by the textGrid parameters.
+     */
     private void drawTexts(Canvas canvas, float textSize, Typeface typeface, String[] texts,
             float[] textGridWidths, float[] textGridHeights) {
         mPaint.setTextSize(textSize);
@@ -249,6 +272,9 @@ public class RadialTextsView extends View {
         canvas.drawText(texts[11], textGridWidths[2], textGridHeights[1], mPaint);
     }
 
+    /**
+     * Render the animations for appearing and disappearing.
+     */
     private void renderAnimations() {
         Keyframe kf0, kf1, kf2, kf3;
         float midwayPoint = 0.2f;
@@ -296,7 +322,7 @@ public class RadialTextsView extends View {
     }
 
     public ObjectAnimator getDisappearAnimator() {
-        if (!mIsInitialized || !mDrawValuesReady) {
+        if (!mIsInitialized || !mDrawValuesReady || mDisappearAnimator == null) {
             Log.e(TAG, "RadialTextView was not ready for animation.");
             return null;
         }
@@ -305,7 +331,7 @@ public class RadialTextsView extends View {
     }
 
     public ObjectAnimator getReappearAnimator() {
-        if (!mIsInitialized || !mDrawValuesReady) {
+        if (!mIsInitialized || !mDrawValuesReady || mReappearAnimator == null) {
             Log.e(TAG, "RadialTextView was not ready for animation.");
             return null;
         }

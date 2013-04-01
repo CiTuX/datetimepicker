@@ -39,12 +39,12 @@
 
     <style name="time_label" parent="time_label_thin">
         <item name="android:textSize">@dimen/time_label_size</item>
-        <item name="android:textColor">@color/black_80</item>
+        <item name="android:textColor">@color/numbers_text_color</item>
     </style>
 
     <style name="ampm_label">
         <item name="android:textSize">@dimen/ampm_label_size</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:textColor">@color/black_50</item>
+        <item name="android:textColor">@color/ampm_text_color</item>
     </style>
 </resources>

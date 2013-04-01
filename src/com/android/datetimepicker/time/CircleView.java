@@ -25,13 +25,16 @@ import android.view.View;
 
 import com.android.datetimepicker.R;
 
+/**
+ * Draws a simple white circle on which the numbers will be drawn.
+ */
 public class CircleView extends View {
     private static final String TAG = "CircleView";
 
     private final Paint mPaint = new Paint();
     private boolean mIs24HourMode;
     private int mWhite;
-    private int mBlack80;
+    private int mBlack;
     private float mCircleRadiusMultiplier;
     private float mAmPmCircleRadiusMultiplier;
     private boolean mIsInitialized;
@@ -46,7 +49,7 @@ public class CircleView extends View {
 
         Resources res = context.getResources();
         mWhite = res.getColor(R.color.white);
-        mBlack80 = res.getColor(R.color.black_80);
+        mBlack = res.getColor(R.color.numbers_text_color);
         mPaint.setAntiAlias(true);
 
         mIsInitialized = false;
@@ -97,10 +100,12 @@ public class CircleView extends View {
             mDrawValuesReady = true;
         }
 
+        // Draw the white circle.
         mPaint.setColor(mWhite);
         canvas.drawCircle(mXCenter, mYCenter, mCircleRadius, mPaint);
 
-        mPaint.setColor(mBlack80);
+        // Draw a small black circle in the center.
+        mPaint.setColor(mBlack);
         canvas.drawCircle(mXCenter, mYCenter, 2, mPaint);
     }
 }

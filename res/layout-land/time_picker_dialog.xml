@@ -15,12 +15,15 @@
   ~ limitations under the License
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/dialog_height"
-    android:orientation="horizontal"
-    android:background="@color/black_03"
     android:id="@+id/time_picker_dialog"
-    android:focusable="true" >
+    android:layout_height="@dimen/dialog_height"
+    android:layout_width="wrap_content"
+    android:orientation="horizontal"
+    android:focusable="true"
+    android:layout_marginLeft="@dimen/minimum_margin_sides"
+    android:layout_marginRight="@dimen/minimum_margin_sides"
+    android:layout_marginTop="@dimen/minimum_margin_top_bottom"
+    android:layout_marginBottom="@dimen/minimum_margin_top_bottom" >
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -39,7 +42,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dip"
-            android:background="@color/black_20" />
+            android:background="@color/line_background" />
         <LinearLayout
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
@@ -51,15 +54,17 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/done_label" />
+                android:text="@string/done_label"
+                android:textSize="@dimen/done_label_size"
+                android:textColor="@color/done_text_color" />
         </LinearLayout>
     </LinearLayout>
     <com.android.datetimepicker.time.RadialPickerLayout
         android:id="@+id/time_picker"
-        android:layout_width="0dip"
+        android:layout_width="@dimen/picker_dimen"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
+        android:layout_gravity="center"
         android:focusable="true"
-        android:focusableInTouchMode="true" />
+        android:focusableInTouchMode="true"
+        android:background="@color/circle_background" />
 </LinearLayout>

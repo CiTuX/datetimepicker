@@ -31,7 +31,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dip"
-            android:background="@color/black_20" />
+            android:background="@color/line_background" />
 
         <include layout="@layout/date_picker_done_button" />
     </LinearLayout>
@@ -39,7 +39,7 @@
     <View
         android:layout_width="1dip"
         android:layout_height="match_parent"
-        android:background="@color/black_20" />
+        android:background="@color/line_background" />
 
     <FrameLayout
         android:layout_width="@dimen/pager_width"

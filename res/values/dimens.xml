@@ -19,7 +19,7 @@
 
     <item name="circle_radius_multiplier" format="float" type="string">0.82</item>
     <item name="circle_radius_multiplier_24HourMode" format="float" type="string">0.85</item>
-    <item name="selection_radius_multiplier" format="float" type="string">0.14</item>
+    <item name="selection_radius_multiplier" format="float" type="string">0.16</item>
     <item name="ampm_circle_radius_multiplier" format="float" type="string">0.19</item>
     <item name="numbers_radius_multiplier_normal" format="float" type="string">0.81</item>
     <item name="numbers_radius_multiplier_inner" format="float" type="string">0.60</item>
@@ -28,7 +28,7 @@
     <item name="text_size_multiplier_inner" format="float" type="string">0.14</item>
     <item name="text_size_multiplier_outer" format="float" type="string">0.11</item>
 
-    <dimen name="time_label_right_padding">12sp</dimen>
+
     <dimen name="time_label_size">60sp</dimen>
     <dimen name="ampm_label_size">16sp</dimen>
     <dimen name="done_label_size">16sp</dimen>
@@ -36,6 +36,10 @@
     <dimen name="separator_padding">4dip</dimen>
     <dimen name="header_height">96dip</dimen>
     <dimen name="footer_height">48dip</dimen>
+    <dimen name="minimum_margin_sides">48dip</dimen>
+    <dimen name="minimum_margin_top_bottom">24dip</dimen>
+    <dimen name="picker_dimen">270dip</dimen>
+
     <dimen name="pager_height">270dp</dimen>
     <dimen name="pager_width">270dp</dimen>
     <dimen name="date_picker_width">270dp</dimen>
@@ -54,5 +58,4 @@
     <dimen name="month_label_size">16sp</dimen>
     <dimen name="day_number_size">16sp</dimen>
     <dimen name="month_list_item_size">16sp</dimen>
-
 </resources>

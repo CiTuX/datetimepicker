@@ -29,12 +29,15 @@ import com.android.datetimepicker.R;
 
 import java.text.DateFormatSymbols;
 
+/**
+ * Draw the two smaller AM and PM circles next to where the larger circle will be.
+ */
 public class AmPmCirclesView extends View {
     private static final String TAG = "AmPmCirclesView";
 
     private final Paint mPaint = new Paint();
     private int mWhite;
-    private int mBlack50;
+    private int mAmPmTextColor;
     private int mBlue;
     private float mCircleRadiusMultiplier;
     private float mAmPmCircleRadiusMultiplier;
@@ -66,7 +69,7 @@ public class AmPmCirclesView extends View {
 
         Resources res = context.getResources();
         mWhite = res.getColor(R.color.white);
-        mBlack50 = res.getColor(R.color.black_50);
+        mAmPmTextColor = res.getColor(R.color.ampm_text_color);
         mBlue = res.getColor(R.color.blue);
         String typefaceFamily = res.getString(R.string.sans_serif);
         Typeface tf = Typeface.create(typefaceFamily, Typeface.NORMAL);
@@ -96,6 +99,9 @@ public class AmPmCirclesView extends View {
         mAmOrPmPressed = amOrPmPressed;
     }
 
+    /**
+     * Calculate whether the coordinates are touching the AM or PM circle.
+     */
     public int getIsTouchingAmOrPm(float xCoord, float yCoord) {
         if (!mDrawValuesReady) {
             return -1;
@@ -145,16 +151,18 @@ public class AmPmCirclesView extends View {
             mDrawValuesReady = true;
         }
 
+        // We'll need to draw either a ligther blue (for selection), a darker blue (for touching)
+        // or white (for not selected).
         int amColor = mWhite;
         int amAlpha = 255;
         int pmColor = mWhite;
         int pmAlpha = 255;
         if (mAmOrPm == AM) {
             amColor = mBlue;
-            amAlpha = 38;
+            amAlpha = 60;
         } else if (mAmOrPm == PM) {
             pmColor = mBlue;
-            pmAlpha = 38;
+            pmAlpha = 60;
         }
         if (mAmOrPmPressed == AM) {
             amColor = mBlue;
@@ -164,6 +172,7 @@ public class AmPmCirclesView extends View {
             pmAlpha = 175;
         }
 
+        // Draw the two circles.
         mPaint.setColor(amColor);
         mPaint.setAlpha(amAlpha);
         canvas.drawCircle(mAmXCenter, mAmPmYCenter, mAmPmCircleRadius, mPaint);
@@ -171,7 +180,8 @@ public class AmPmCirclesView extends View {
         mPaint.setAlpha(pmAlpha);
         canvas.drawCircle(mPmXCenter, mAmPmYCenter, mAmPmCircleRadius, mPaint);
 
-        mPaint.setColor(mBlack50);
+        // Draw the AM/PM texts on top.
+        mPaint.setColor(mAmPmTextColor);
         int textYCenter = mAmPmYCenter - (int) (mPaint.descent() + mPaint.ascent()) / 2;
         canvas.drawText(mAmText, mAmXCenter, textYCenter, mPaint);
         canvas.drawText(mPmText, mPmXCenter, textYCenter, mPaint);

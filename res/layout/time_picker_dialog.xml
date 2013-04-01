@@ -15,10 +15,10 @@
   ~ limitations under the License
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/black_03"
+    android:background="@color/circle_background"
     android:id="@+id/time_picker_dialog"
     android:focusable="true" >
     <FrameLayout
@@ -33,16 +33,15 @@
     </FrameLayout>
     <com.android.datetimepicker.time.RadialPickerLayout
         android:id="@+id/time_picker"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1"
-        android:gravity="center"
+        android:layout_height="@dimen/picker_dimen"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center"
         android:focusable="true"
         android:focusableInTouchMode="true" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dip"
-        android:background="@color/black_20" />
+        android:background="@color/line_background" />
     <LinearLayout
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
@@ -54,7 +53,7 @@
             android:layout_height="wrap_content"
             android:text="@string/done_label"
             android:textSize="@dimen/done_label_size"
-            android:textColor="@color/black_60"
+            android:textColor="@color/done_text_color"
             style="?android:attr/buttonBarButtonStyle" />
     </LinearLayout>
 </LinearLayout>
