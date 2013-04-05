@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2013 The Android Open Source Project
+<!--
+     Copyright (C) 2013 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,10 +15,16 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Label for button to confirm chosen date or time [CHAR LIMIT=30] -->
     <string name="done_label">Done</string>
+    <!-- Content description for hour circular picker [CHAR LIMIT=50] -->
     <string name="hour_picker_description">Hours circular slider</string>
+    <!-- Content description for minute circular picker [CHAR LIMIT=50] -->
     <string name="minute_picker_description">Minutes circular slider</string>
+    <!-- Accessibility announcement for hour circular picker [CHAR LIMIT=NONE] -->
     <string name="select_hours">Select hours</string>
+    <!-- Accessibility announcement for minute circular picker [CHAR LIMIT=NONE] -->
     <string name="select_minutes">Select minutes</string>
 
     <!-- DO NOT TRANSLATE -->
@@ -29,4 +36,5 @@
     <string name="radial_numbers_typeface">sans-serif</string>
     <!-- DO NOT TRANSLATE -->
     <string name="sans_serif">sans-serif</string>
+
 </resources>
