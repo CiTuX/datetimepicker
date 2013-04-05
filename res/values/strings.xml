@@ -18,9 +18,17 @@
 
     <!-- Label for button to confirm chosen date or time [CHAR LIMIT=30] -->
     <string name="done_label">Done</string>
-    <!-- Content description for hour circular picker [CHAR LIMIT=50] -->
+    <!--
+         Content description for the hour selector in the time picker, which displays
+         selectable hours of the day along the inside edge of a circle, as in an analog clock.
+         [CHAR LIMIT=50] 
+    -->
     <string name="hour_picker_description">Hours circular slider</string>
-    <!-- Content description for minute circular picker [CHAR LIMIT=50] -->
+    <!--
+         Content description for the minute selector in the time picker, which displays
+         selectable five-minute intervals along the inside edge of a circle, as in an analog clock.
+         [CHAR LIMIT=50] 
+    -->
     <string name="minute_picker_description">Minutes circular slider</string>
     <!-- Accessibility announcement for hour circular picker [CHAR LIMIT=NONE] -->
     <string name="select_hours">Select hours</string>
