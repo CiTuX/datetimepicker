@@ -23,8 +23,8 @@
     <include layout="@layout/date_picker_selected_date"
         android:id="@+id/date_picker_selected_date_layout" />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
+    <ViewAnimator
+        android:id="@+id/animator"
         android:layout_width="@dimen/pager_width"
         android:layout_height="@dimen/pager_height"
         android:gravity="center"

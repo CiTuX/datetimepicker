@@ -35,7 +35,7 @@ public class YearPickerView extends FrameLayout implements OnValueChangeListener
         super(context);
         mController = controller;
         ViewGroup.LayoutParams frame = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT);
+                LayoutParams.MATCH_PARENT);
         setLayoutParams(frame);
         mPicker = new NumberPicker(context);
         LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
