@@ -127,7 +127,7 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnTouchListener {
 
     @Override
     public int getCount() {
-        return (mController.getMaxYear() - mController.getMinYear()) * MONTHS_IN_YEAR;
+        return ((mController.getMaxYear() - mController.getMinYear()) + 1) * MONTHS_IN_YEAR;
     }
 
     @Override
