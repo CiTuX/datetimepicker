@@ -404,7 +404,7 @@ public class SimpleMonthView extends View {
             return null;
         }
         // Selection is (x - start) / (pixels/day) == (x -s) * day / pixels
-        int row = (int) (y - mRowHeight) / mRowHeight;
+        int row = (int) (y - MONTH_HEADER_SIZE) / mRowHeight;
         int column = (int) ((x - dayStart) * mNumDays / (mWidth - dayStart - mPadding));
 
         int day = column - findDayOffset() + 1;
