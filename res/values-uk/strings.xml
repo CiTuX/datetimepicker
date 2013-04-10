@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="done_label" msgid="7007948707597430919">"Готово"</string>
-    <string name="hour_picker_description" msgid="7586639618712934060">"Коловий маркер відліку годин"</string>
-    <string name="minute_picker_description" msgid="6024811202872705251">"Коловий маркер відліку хвилин"</string>
+    <string name="hour_picker_description" msgid="7586639618712934060">"Вибір годин на циферблаті"</string>
+    <string name="minute_picker_description" msgid="6024811202872705251">"Вибір хвилин на циферблаті"</string>
     <string name="select_hours" msgid="7651068754188418859">"Вибрати години"</string>
     <string name="select_minutes" msgid="8327182090226828481">"Вибрати хвилини"</string>
 </resources>

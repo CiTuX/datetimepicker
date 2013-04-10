@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="done_label" msgid="7007948707597430919">"Fet"</string>
-    <string name="hour_picker_description" msgid="7586639618712934060">"Control circular de les hores"</string>
-    <string name="minute_picker_description" msgid="6024811202872705251">"Control circular dels minuts"</string>
-    <string name="select_hours" msgid="7651068754188418859">"Selecciona les hores"</string>
-    <string name="select_minutes" msgid="8327182090226828481">"Selecciona els minuts"</string>
+    <string name="done_label" msgid="7007948707597430919">"पूर्ण"</string>
+    <string name="hour_picker_description" msgid="7586639618712934060">"घंटो का चक्राकार स्लाइडर"</string>
+    <string name="minute_picker_description" msgid="6024811202872705251">"मिनटों का चक्राकार स्लाइडर"</string>
+    <string name="select_hours" msgid="7651068754188418859">"घंटे चुनें"</string>
+    <string name="select_minutes" msgid="8327182090226828481">"मिनट चुनें"</string>
 </resources>

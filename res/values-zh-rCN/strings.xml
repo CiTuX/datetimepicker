@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="done_label" msgid="7007948707597430919">"完成"</string>
-    <string name="hour_picker_description" msgid="7586639618712934060">"小时数圆形滑杆"</string>
-    <string name="minute_picker_description" msgid="6024811202872705251">"分钟数圆形滑杆"</string>
-    <string name="select_hours" msgid="7651068754188418859">"选择小时数"</string>
-    <string name="select_minutes" msgid="8327182090226828481">"选择分钟数"</string>
+    <string name="hour_picker_description" msgid="7586639618712934060">"小时转盘"</string>
+    <string name="minute_picker_description" msgid="6024811202872705251">"分钟转盘"</string>
+    <string name="select_hours" msgid="7651068754188418859">"选择小时"</string>
+    <string name="select_minutes" msgid="8327182090226828481">"选择分钟"</string>
 </resources>
