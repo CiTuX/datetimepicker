@@ -16,6 +16,7 @@
 
 package com.android.datetimepicker.time;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.app.DialogFragment;
@@ -65,11 +66,16 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     public static final int AM = 0;
     public static final int PM = 1;
 
+    // Delay before starting the pulse animation, in ms.
+    private static final int PULSE_ANIMATOR_DELAY = 300;
+
     private OnTimeSetListener mCallback;
 
     private TextView mDoneButton;
     private TextView mHourView;
+    private TextView mHourSpaceView;
     private TextView mMinuteView;
+    private TextView mMinuteSpaceView;
     private TextView mAmPmTextView;
     private View mAmPmHitspace;
     private RadialPickerLayout mTimePicker;
@@ -181,6 +187,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
 
         mHourView = (TextView) view.findViewById(R.id.hours);
         mHourView.setOnKeyListener(keyboardListener);
+        mHourSpaceView = (TextView) view.findViewById(R.id.hour_space);
+        mMinuteSpaceView = (TextView) view.findViewById(R.id.minutes_space);
         mMinuteView = (TextView) view.findViewById(R.id.minutes);
         mMinuteView.setOnKeyListener(keyboardListener);
         mAmPmTextView = (TextView) view.findViewById(R.id.ampm_label);
@@ -198,20 +206,20 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 savedInstanceState.containsKey(KEY_CURRENT_ITEM_SHOWING)) {
             currentItemShowing = savedInstanceState.getInt(KEY_CURRENT_ITEM_SHOWING);
         }
-        setCurrentItemShowing(currentItemShowing, false, true);
+        setCurrentItemShowing(currentItemShowing, false, true, true);
         mTimePicker.invalidate();
 
         mHourView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                setCurrentItemShowing(HOUR_INDEX, true, true);
+                setCurrentItemShowing(HOUR_INDEX, true, false, true);
                 mTimePicker.tryVibrate();
             }
         });
         mMinuteView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                setCurrentItemShowing(MINUTE_INDEX, true, true);
+                setCurrentItemShowing(MINUTE_INDEX, true, false, true);
                 mTimePicker.tryVibrate();
             }
         });
@@ -320,7 +328,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             setHour(newValue, false);
             String announcement = String.format("%d", newValue);
             if (mAllowAutoAdvance && autoAdvance) {
-                setCurrentItemShowing(MINUTE_INDEX, true, false);
+                setCurrentItemShowing(MINUTE_INDEX, true, true, false);
                 announcement += ". " + mSelectMinutes;
             }
             tryAccessibilityAnnounce(announcement);
@@ -350,6 +358,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
 
         CharSequence text = String.format(format, value);
         mHourView.setText(text);
+        mHourSpaceView.setText(text);
         if (announce) {
             tryAccessibilityAnnounce(text);
         }
@@ -362,12 +371,15 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         CharSequence text = String.format(Locale.getDefault(), "%02d", value);
         tryAccessibilityAnnounce(text);
         mMinuteView.setText(text);
+        mMinuteSpaceView.setText(text);
     }
 
     // Show either Hours or Minutes.
-    private void setCurrentItemShowing(int index, boolean animate, boolean announce) {
-        mTimePicker.setCurrentItemShowing(index, animate);
+    private void setCurrentItemShowing(int index, boolean animateCircle, boolean delayLabelAnimate,
+            boolean announce) {
+        mTimePicker.setCurrentItemShowing(index, animateCircle);
 
+        TextView labelToAnimate;
         if (index == HOUR_INDEX) {
             int hours = mTimePicker.getHours();
             if (!mIs24HourMode) {
@@ -377,18 +389,26 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             if (announce) {
                 tryAccessibilityAnnounce(mSelectHours);
             }
+            labelToAnimate = mHourView;
         } else {
             int minutes = mTimePicker.getMinutes();
             mTimePicker.setContentDescription(mMinutePickerDescription+": "+minutes);
             if (announce) {
                 tryAccessibilityAnnounce(mSelectMinutes);
             }
+            labelToAnimate = mMinuteView;
         }
 
         int hourColor = (index == HOUR_INDEX)? mBlue : mBlack;
         int minuteColor = (index == MINUTE_INDEX)? mBlue : mBlack;
         mHourView.setTextColor(hourColor);
         mMinuteView.setTextColor(minuteColor);
+
+        ObjectAnimator pulseAnimator = Utils.getPulseAnimator(labelToAnimate);
+        if (delayLabelAnimate) {
+            pulseAnimator.setStartDelay(PULSE_ANIMATOR_DELAY);
+        }
+        pulseAnimator.start();
     }
 
     /**
@@ -581,7 +601,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             if (!mIs24HourMode) {
                 updateAmPmDisplay(hour < 12? AM : PM);
             }
-            setCurrentItemShowing(mTimePicker.getCurrentItemShowing(), true, true);
+            setCurrentItemShowing(mTimePicker.getCurrentItemShowing(), true, true, true);
             mDoneButton.setEnabled(true);
         } else {
             Boolean[] enteredZeros = {false, false};
