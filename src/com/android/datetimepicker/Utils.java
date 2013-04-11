@@ -31,7 +31,7 @@ import java.util.Calendar;
 public class Utils {
 
     public static final int MONDAY_BEFORE_JULIAN_EPOCH = Time.EPOCH_JULIAN_DAY - 3;
-    public static final int PULSE_ANIMATOR_DURATION = 600;
+    public static final int PULSE_ANIMATOR_DURATION = 544;
 
     static final String SHARED_PREFS_NAME = "com.android.calendar_preferences";
 
@@ -103,10 +103,11 @@ public class Utils {
      * @param labelToAnimate the view to pulsate.
      * @return The animator object. Use .start() to begin.
      */
-    public static ObjectAnimator getPulseAnimator(View labelToAnimate) {
+    public static ObjectAnimator getPulseAnimator(View labelToAnimate, float decreaseRatio,
+            float increaseRatio) {
         Keyframe k0 = Keyframe.ofFloat(0f, 1f);
-        Keyframe k1 = Keyframe.ofFloat(0.25f, 0.85f);
-        Keyframe k2 = Keyframe.ofFloat(0.625f, 1.1f);
+        Keyframe k1 = Keyframe.ofFloat(0.275f, decreaseRatio);
+        Keyframe k2 = Keyframe.ofFloat(0.69f, increaseRatio);
         Keyframe k3 = Keyframe.ofFloat(1f, 1f);
 
         PropertyValuesHolder scaleX = PropertyValuesHolder.ofKeyframe("scaleX", k0, k1, k2, k3);

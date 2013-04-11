@@ -22,7 +22,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
-import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.text.format.Time;
 import android.view.View;
 
@@ -110,9 +110,12 @@ public class SimpleMonthView extends View {
     // affects the padding on the sides of this view
     protected int mPadding = 0;
 
-    protected Rect r = new Rect();
+    private String mDayOfWeekTypeface;
+    private String mMonthTitleTypeface;
+
     protected Paint mMonthNumPaint;
     protected Paint mMonthTitlePaint;
+    protected Paint mMonthTitleBGPaint;
     protected Paint mSelectedCirclePaint;
     protected Paint mMonthDayLabelPaint;
 
@@ -152,15 +155,10 @@ public class SimpleMonthView extends View {
 
     private int mNumRows = DEFAULT_NUM_ROWS;
 
-    protected int mBGColor;
-    protected int mFocusMonthColor;
-    protected int mOtherMonthColor;
-    protected int mDaySeparatorColor;
-    protected int mTodayOutlineColor;
-    protected int mWeekNumColor;
-
     protected int mDayTextColor;
-    protected int mMonthTitleTextColor;
+    protected int mTodayNumberColor;
+    protected int mMonthTitleColor;
+    protected int mMonthTitleBGColor;
 
     public SimpleMonthView(Context context) {
         super(context);
@@ -169,14 +167,14 @@ public class SimpleMonthView extends View {
 
         mDayLabelCalendar = Calendar.getInstance();
         mCalendar = Calendar.getInstance();
-        mBGColor = res.getColor(R.color.month_bgcolor);
-        mFocusMonthColor = res.getColor(R.color.month_mini_day_number);
-        mOtherMonthColor = res.getColor(R.color.month_other_month_day_number);
-        mDaySeparatorColor = res.getColor(R.color.month_grid_lines);
-        mTodayOutlineColor = res.getColor(R.color.mini_month_today_outline_color);
-        mDayTextColor = res.getColor(R.color.calendar_day_number);
-        mMonthTitleTextColor = res.getColor(R.color.selected_text);
-        mWeekNumColor = res.getColor(R.color.month_week_num_color);
+
+        mDayOfWeekTypeface = res.getString(R.string.day_of_week_label_typeface);
+        mMonthTitleTypeface = res.getString(R.string.sans_serif);
+
+        mDayTextColor = res.getColor(R.color.date_picker_text_normal);
+        mTodayNumberColor = res.getColor(R.color.blue);
+        mMonthTitleColor = res.getColor(R.color.white);
+        mMonthTitleBGColor = res.getColor(R.color.circle_background);
 
         MINI_DAY_NUMBER_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.day_number_size);
         MONTH_LABEL_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.month_label_size);
@@ -200,15 +198,22 @@ public class SimpleMonthView extends View {
         mMonthTitlePaint.setFakeBoldText(true);
         mMonthTitlePaint.setAntiAlias(true);
         mMonthTitlePaint.setTextSize(MONTH_LABEL_TEXT_SIZE);
-        mMonthTitlePaint.setColor(mMonthTitleTextColor);
+        mMonthTitlePaint.setTypeface(Typeface.create(mMonthTitleTypeface, Typeface.BOLD));
+        mMonthTitlePaint.setColor(mDayTextColor);
         mMonthTitlePaint.setTextAlign(Align.CENTER);
         mMonthTitlePaint.setStyle(Style.FILL);
-        mMonthTitlePaint.setFakeBoldText(true);
+
+        mMonthTitleBGPaint = new Paint();
+        mMonthTitleBGPaint.setFakeBoldText(true);
+        mMonthTitleBGPaint.setAntiAlias(true);
+        mMonthTitleBGPaint.setColor(mMonthTitleBGColor);
+        mMonthTitleBGPaint.setTextAlign(Align.CENTER);
+        mMonthTitleBGPaint.setStyle(Style.FILL);
 
         mSelectedCirclePaint = new Paint();
         mSelectedCirclePaint.setFakeBoldText(true);
         mSelectedCirclePaint.setAntiAlias(true);
-        mSelectedCirclePaint.setColor(mMonthTitleTextColor);
+        mSelectedCirclePaint.setColor(mTodayNumberColor);
         mSelectedCirclePaint.setTextAlign(Align.CENTER);
         mSelectedCirclePaint.setStyle(Style.FILL);
         mSelectedCirclePaint.setAlpha(SELECTED_CIRCLE_ALPHA);
@@ -217,6 +222,7 @@ public class SimpleMonthView extends View {
         mMonthDayLabelPaint.setAntiAlias(true);
         mMonthDayLabelPaint.setTextSize(MONTH_DAY_LABEL_TEXT_SIZE);
         mMonthDayLabelPaint.setColor(mDayTextColor);
+        mMonthDayLabelPaint.setTypeface(Typeface.create(mDayOfWeekTypeface, Typeface.NORMAL));
         mMonthDayLabelPaint.setStyle(Style.FILL);
         mMonthDayLabelPaint.setTextAlign(Align.CENTER);
         mMonthDayLabelPaint.setFakeBoldText(true);
@@ -370,7 +376,7 @@ public class SimpleMonthView extends View {
             }
 
             if (mHasToday && mToday == dayNumber) {
-                mMonthNumPaint.setColor(mMonthTitleTextColor);
+                mMonthNumPaint.setColor(mTodayNumberColor);
             } else {
                 mMonthNumPaint.setColor(mDayTextColor);
             }

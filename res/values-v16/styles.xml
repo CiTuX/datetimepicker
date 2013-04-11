@@ -23,4 +23,8 @@
     <style name="done_button_light">
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
+
+    <style name="day_of_week_label_condensed">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
 </resources>

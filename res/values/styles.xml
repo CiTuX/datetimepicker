@@ -47,4 +47,6 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/ampm_text_color</item>
     </style>
+
+    <style name="day_of_week_label_condensed" />
 </resources>

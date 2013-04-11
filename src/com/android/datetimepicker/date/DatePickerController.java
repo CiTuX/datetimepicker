@@ -16,24 +16,29 @@
 
 package com.android.datetimepicker.date;
 
+import com.android.datetimepicker.date.DatePickerDialog.OnDateChangedListener;
 import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
 
 /**
  * Controller class to communicate among the various components of the date picker dialog.
  */
-public interface DatePickerController {
+interface DatePickerController {
 
-    public void onYearPickerSelectionChanged(int year);
+    void onYearSelected(int year);
 
-    public void onMonthPickerSelectionChanged(int month);
+    void onDayOfMonthSelected(int year, int month, int day);
 
-    public void onDayPickerSelectionChanged(int year, int month, int day);
+    void registerOnDateChangedListener(OnDateChangedListener listener);
 
-    public CalendarDay getSelectedDay();
+    void unregisterOnDateChangedListener(OnDateChangedListener listener);
 
-    public int getFirstDayOfWeek();
+    CalendarDay getSelectedDay();
 
-    public int getMinYear();
+    int getFirstDayOfWeek();
 
-    public int getMaxYear();
+    int getMinYear();
+
+    int getMaxYear();
+
+    void tryVibrate();
 }
