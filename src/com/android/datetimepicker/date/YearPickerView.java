@@ -19,8 +19,10 @@ package com.android.datetimepicker.date;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.StateListDrawable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -28,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.datetimepicker.R;
+import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.date.DatePickerDialog.OnDateChangedListener;
 
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ import java.util.List;
  * Displays a selectable list of years.
  */
 public class YearPickerView extends ListView implements OnItemClickListener, OnDateChangedListener {
+    private static final String TAG = "YearPickerView";
 
     private final DatePickerController mController;
     private YearAdapter mAdapter;
@@ -146,5 +150,14 @@ public class YearPickerView extends ListView implements OnItemClickListener, OnD
     public void onDateChanged() {
         mAdapter.notifyDataSetChanged();
         postSetSelectionCentered(mController.getSelectedDay().year - mController.getMinYear());
+    }
+
+    @Override
+    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+        super.onInitializeAccessibilityEvent(event);
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            event.setFromIndex(0);
+            event.setToIndex(0);
+        }
     }
 }

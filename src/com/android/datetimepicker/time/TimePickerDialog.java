@@ -17,7 +17,6 @@
 package com.android.datetimepicker.time;
 
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -293,11 +292,11 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     private void updateAmPmDisplay(int amOrPm) {
         if (amOrPm == AM) {
             mAmPmTextView.setText(mAmText);
-            tryAccessibilityAnnounce(mAmText);
+            Utils.tryAccessibilityAnnounce(mTimePicker, mAmText);
             mAmPmHitspace.setContentDescription(mAmText);
         } else if (amOrPm == PM){
             mAmPmTextView.setText(mPmText);
-            tryAccessibilityAnnounce(mPmText);
+            Utils.tryAccessibilityAnnounce(mTimePicker, mPmText);
             mAmPmHitspace.setContentDescription(mPmText);
         } else {
             mAmPmTextView.setText(mDoublePlaceholderText);
@@ -330,7 +329,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 setCurrentItemShowing(MINUTE_INDEX, true, true, false);
                 announcement += ". " + mSelectMinutes;
             }
-            tryAccessibilityAnnounce(announcement);
+            Utils.tryAccessibilityAnnounce(mTimePicker, announcement);
         } else if (pickerIndex == MINUTE_INDEX){
             setMinute(newValue);
         } else if (pickerIndex == AMPM_INDEX) {
@@ -359,7 +358,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mHourView.setText(text);
         mHourSpaceView.setText(text);
         if (announce) {
-            tryAccessibilityAnnounce(text);
+            Utils.tryAccessibilityAnnounce(mTimePicker, text);
         }
     }
 
@@ -368,7 +367,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             value = 0;
         }
         CharSequence text = String.format(Locale.getDefault(), "%02d", value);
-        tryAccessibilityAnnounce(text);
+        Utils.tryAccessibilityAnnounce(mTimePicker, text);
         mMinuteView.setText(text);
         mMinuteSpaceView.setText(text);
     }
@@ -386,14 +385,14 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             }
             mTimePicker.setContentDescription(mHourPickerDescription+": "+hours);
             if (announce) {
-                tryAccessibilityAnnounce(mSelectHours);
+                Utils.tryAccessibilityAnnounce(mTimePicker, mSelectHours);
             }
             labelToAnimate = mHourView;
         } else {
             int minutes = mTimePicker.getMinutes();
             mTimePicker.setContentDescription(mMinutePickerDescription+": "+minutes);
             if (announce) {
-                tryAccessibilityAnnounce(mSelectMinutes);
+                Utils.tryAccessibilityAnnounce(mTimePicker, mSelectMinutes);
             }
             labelToAnimate = mMinuteView;
         }
@@ -408,17 +407,6 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             pulseAnimator.setStartDelay(PULSE_ANIMATOR_DELAY);
         }
         pulseAnimator.start();
-    }
-
-    /**
-     * Try to speak the specified text, for accessibility. Only available on JB or later.
-     * @param text
-     */
-    @SuppressLint("NewApi")
-    private void tryAccessibilityAnnounce(CharSequence text) {
-        if (Utils.isJellybeanOrLater() && mTimePicker != null && text != null) {
-            mTimePicker.announceForAccessibility(text);
-        }
     }
 
     /**

@@ -21,14 +21,14 @@ import android.util.AttributeSet;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
 /**
  * Fake Button class, used so TextViews can announce themselves as Buttons, for accessibility.
  */
-public class FakeButton extends TextView {
+public class AccessibleLinearLayout extends LinearLayout {
 
-    public FakeButton(Context context, AttributeSet attrs) {
+    public AccessibleLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

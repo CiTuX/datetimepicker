@@ -20,9 +20,14 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
+import android.text.format.Time;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +35,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
@@ -82,7 +88,7 @@ public class DatePickerDialog extends DialogFragment implements
     private OnDateSetListener mCallBack;
     private HashSet<OnDateChangedListener> mListeners = new HashSet<OnDateChangedListener>();
 
-    private ViewAnimator mAnimator;
+    private AccessibleDateAnimator mAnimator;
 
     private TextView mDayOfWeekView;
     private LinearLayout mMonthAndDayView;
@@ -103,6 +109,12 @@ public class DatePickerDialog extends DialogFragment implements
     private long mLastVibrate;
 
     private boolean mDelayAnimation = true;
+
+    // Accessibility strings.
+    private String mDayPickerDescription;
+    private String mSelectDay;
+    private String mYearPickerDescription;
+    private String mSelectYear;
 
     /**
      * The callback used to indicate the user is done filling in the date.
@@ -219,9 +231,16 @@ public class DatePickerDialog extends DialogFragment implements
         mDayPickerView = new DayPickerView(activity, this);
         mYearPickerView = new YearPickerView(activity, this);
 
-        mAnimator = (ViewAnimator) view.findViewById(R.id.animator);
+        Resources res = getResources();
+        mDayPickerDescription = res.getString(R.string.day_picker_description);
+        mSelectDay = res.getString(R.string.select_day);
+        mYearPickerDescription = res.getString(R.string.year_picker_description);
+        mSelectYear = res.getString(R.string.select_year);
+
+        mAnimator = (AccessibleDateAnimator) view.findViewById(R.id.animator);
         mAnimator.addView(mDayPickerView);
         mAnimator.addView(mYearPickerView);
+        mAnimator.setDateMillis(mCalendar.getTimeInMillis());
         // TODO: Replace with animation decided upon by the design team.
         Animation animation = new AlphaAnimation(0.0f, 1.0f);
         animation.setDuration(ANIMATION_DURATION);
@@ -245,7 +264,7 @@ public class DatePickerDialog extends DialogFragment implements
             }
         });
 
-        updateDisplay();
+        updateDisplay(false);
         setCurrentView(currentView);
 
         if (listPosition != -1) {
@@ -259,6 +278,8 @@ public class DatePickerDialog extends DialogFragment implements
     }
 
     private void setCurrentView(final int viewIndex) {
+        long millis = mCalendar.getTimeInMillis();
+
         switch (viewIndex) {
             case MONTH_AND_DAY_VIEW:
                 ObjectAnimator pulseAnimator = Utils.getPulseAnimator(mMonthAndDayView, 0.9f,
@@ -275,6 +296,11 @@ public class DatePickerDialog extends DialogFragment implements
                     mCurrentView = viewIndex;
                 }
                 pulseAnimator.start();
+
+                int flags = DateUtils.FORMAT_SHOW_DATE;
+                String dayString = DateUtils.formatDateTime(getActivity(), millis, flags);
+                mAnimator.setContentDescription(mDayPickerDescription+": "+dayString);
+                Utils.tryAccessibilityAnnounce(mAnimator, mSelectDay);
                 break;
             case YEAR_VIEW:
                 pulseAnimator = Utils.getPulseAnimator(mYearView, 0.85f, 1.1f);
@@ -290,19 +316,37 @@ public class DatePickerDialog extends DialogFragment implements
                     mCurrentView = viewIndex;
                 }
                 pulseAnimator.start();
+
+                CharSequence yearString = YEAR_FORMAT.format(millis);
+                mAnimator.setContentDescription(mYearPickerDescription+": "+yearString);
+                Utils.tryAccessibilityAnnounce(mAnimator, mSelectYear);
                 break;
         }
     }
 
-    private void updateDisplay() {
+    private void updateDisplay(boolean announce) {
         if (mDayOfWeekView != null) {
             mDayOfWeekView.setText(mCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG,
                     Locale.getDefault()).toUpperCase(Locale.getDefault()));
         }
+
         mSelectedMonthTextView.setText(mCalendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
                 Locale.getDefault()).toUpperCase(Locale.getDefault()));
         mSelectedDayTextView.setText(DAY_FORMAT.format(mCalendar.getTime()));
         mYearView.setText(YEAR_FORMAT.format(mCalendar.getTime()));
+
+        // Accessibility.
+        long millis = mCalendar.getTimeInMillis();
+        mAnimator.setDateMillis(millis);
+        int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR;
+        String monthAndDayText = DateUtils.formatDateTime(getActivity(), millis, flags);
+        mMonthAndDayView.setContentDescription(monthAndDayText);
+
+        if (announce) {
+            flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR;
+            String fullDateText = DateUtils.formatDateTime(getActivity(), millis, flags);
+            Utils.tryAccessibilityAnnounce(mAnimator, fullDateText);
+        }
     }
 
     public void setFirstDayOfWeek(int startOfWeek) {
@@ -359,7 +403,7 @@ public class DatePickerDialog extends DialogFragment implements
         mCalendar.set(Calendar.YEAR, year);
         updatePickers();
         setCurrentView(MONTH_AND_DAY_VIEW);
-        updateDisplay();
+        updateDisplay(true);
     }
 
     @Override
@@ -368,7 +412,7 @@ public class DatePickerDialog extends DialogFragment implements
         mCalendar.set(Calendar.MONTH, month);
         mCalendar.set(Calendar.DAY_OF_MONTH, day);
         updatePickers();
-        updateDisplay();
+        updateDisplay(true);
     }
 
     private void updatePickers() {
