@@ -13,18 +13,10 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="?android:attr/buttonBarStyle"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout="@+id/done_layout"
-    android:orientation="vertical" >
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <Button
-        android:id="@+id/done"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/done_label" 
-        android:textColor="@color/done_text_color" />
-</LinearLayout>
+    <item android:state_pressed="true" android:color="@color/darker_blue"/>
+    <item android:state_pressed="false" android:state_selected="false"
+        android:color="@color/date_picker_text_normal"/>
+
+</selector>

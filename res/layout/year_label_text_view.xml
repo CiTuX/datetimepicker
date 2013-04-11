@@ -13,13 +13,12 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<com.android.datetimepicker.date.SelectableTextView
+<com.android.datetimepicker.date.TextViewWithCircularIndicator
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/month_text_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/year_label_height"
     android:layout_gravity="center"
     android:gravity="center"
-    android:padding="@dimen/month_list_item_padding"
-    android:textColor="@color/calendar_day_number"
-    android:textSize="@dimen/month_list_item_size" />
+    android:textColor="@color/date_picker_year_selector"
+    android:textSize="@dimen/year_label_text_size" />

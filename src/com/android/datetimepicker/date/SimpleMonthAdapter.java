@@ -207,7 +207,8 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnTouchListener {
      * @param day The day that was tapped
      */
     protected void onDayTapped(CalendarDay day) {
-        mController.onDayPickerSelectionChanged(day.year, day.month, day.day);
+        mController.tryVibrate();
+        mController.onDayOfMonthSelected(day.year, day.month, day.day);
         setSelectedDay(day);
     }
 

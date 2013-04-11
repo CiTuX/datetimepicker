@@ -17,9 +17,7 @@
 package com.android.datetimepicker.date;
 
 import android.content.Context;
-import android.database.DataSetObserver;
 import android.os.Handler;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -27,15 +25,13 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 
+import com.android.datetimepicker.date.DatePickerDialog.OnDateChangedListener;
 import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
-
-import java.util.Calendar;
-import java.util.Locale;
 
 /**
  * This displays a list of months in a calendar format with selectable days.
  */
-public class DayPickerView extends ListView implements OnScrollListener {
+public class DayPickerView extends ListView implements OnScrollListener, OnDateChangedListener {
 
     private static final String TAG = "MonthFragment";
 
@@ -61,8 +57,6 @@ public class DayPickerView extends ListView implements OnScrollListener {
     protected Context mContext;
     protected Handler mHandler;
 
-    protected float mMinimumFlingVelocity;
-
     // highlighted time
     protected CalendarDay mSelectedDay = new CalendarDay();
     protected SimpleMonthAdapter mAdapter;
@@ -72,8 +66,6 @@ public class DayPickerView extends ListView implements OnScrollListener {
     private static float mScale = 0;
     // When the week starts; numbered like Time.<WEEKDAY> (e.g. SUNDAY=0).
     protected int mFirstDayOfWeek;
-    // The first day that is visible in the view
-    protected Time mFirstVisibleDay = new Time();
     // The last name announced by accessibility
     protected CharSequence mPrevMonthName;
     // which month should be displayed/highlighted [0-11]
@@ -87,61 +79,19 @@ public class DayPickerView extends ListView implements OnScrollListener {
 
     private final DatePickerController mController;
 
-    // This causes an update of the view at midnight
-    protected Runnable mTodayUpdater = new Runnable() {
-        @Override
-        public void run() {
-            Time midnight = new Time(mFirstVisibleDay.timezone);
-            midnight.setToNow();
-            long currentMillis = midnight.toMillis(true);
-
-            midnight.hour = 0;
-            midnight.minute = 0;
-            midnight.second = 0;
-            midnight.monthDay++;
-            long millisToMidnight = midnight.normalize(true) - currentMillis;
-            mHandler.postDelayed(this, millisToMidnight);
-
-            if (mAdapter != null) {
-                mAdapter.notifyDataSetChanged();
-            }
-        }
-    };
-
-    // This allows us to update our position when a day is tapped
-    protected DataSetObserver mObserver = new DataSetObserver() {
-        @Override
-        public void onChanged() {
-            CalendarDay day = mAdapter.getSelectedDay();
-            if (day.year != mSelectedDay.year || day.day != mSelectedDay.day) {
-                goTo(day, true, true, false);
-            }
-        }
-    };
-
     public DayPickerView(Context context, DatePickerController controller) {
         super(context);
         mHandler = new Handler();
         mController = controller;
+        mController.registerOnDateChangedListener(this);
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         setDrawSelectorOnTop(false);
         init(context);
-        setCalendarDate(controller.getSelectedDay());
-    }
-
-    public void setCalendarDate(CalendarDay day) {
-        goTo(day, false, true, true);
+        onDateChanged();
     }
 
     public void init(Context context) {
         mContext = context;
-        String tz = Time.getCurrentTimezone();
-        ViewConfiguration viewConfig = ViewConfiguration.get(context);
-        mMinimumFlingVelocity = viewConfig.getScaledMinimumFlingVelocity();
-
-        mFirstVisibleDay.timezone = tz;
-        mFirstVisibleDay.normalize(true);
-
         setUpListView();
         setUpAdapter();
         setAdapter(mAdapter);
@@ -159,7 +109,6 @@ public class DayPickerView extends ListView implements OnScrollListener {
     protected void setUpAdapter() {
         if (mAdapter == null) {
             mAdapter = new SimpleMonthAdapter(getContext(), mController);
-            mAdapter.registerDataSetObserver(mObserver);
         } else {
             mAdapter.setSelectedDay(mSelectedDay);
             mAdapter.notifyDataSetChanged();
@@ -188,41 +137,6 @@ public class DayPickerView extends ListView implements OnScrollListener {
         setFriction(ViewConfiguration.getScrollFriction() * mFriction);
     }
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        setUpAdapter();
-        doResumeUpdates();
-    }
-
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        mHandler.removeCallbacks(mTodayUpdater);
-    }
-
-    // @Override
-    // public void onSaveInstanceState(Bundle outState) {
-    // outState.putLong(KEY_CURRENT_TIME, mSelectedDay.toMillis(true));
-    // }
-
-    /**
-     * Updates the user preference fields. Override this to use a different
-     * preference space.
-     */
-    protected void doResumeUpdates() {
-        // Get default week start based on locale, subtracting one for use with
-        // android Time.
-        Calendar cal = Calendar.getInstance(Locale.getDefault());
-        mFirstDayOfWeek = cal.getFirstDayOfWeek() - 1;
-
-        mShowWeekNumber = false;
-
-        goTo(mSelectedDay, false, false, false);
-        mAdapter.setSelectedDay(mSelectedDay);
-        mTodayUpdater.run();
-    }
-
     /**
      * This moves to the specified time in the view. If the time is not already
      * in range it will move the list so that the first of the month containing
@@ -246,10 +160,9 @@ public class DayPickerView extends ListView implements OnScrollListener {
         }
 
         mTempDay.set(day);
-        // Get the week we're going to
-        // TODO push Util function into Calendar public api.
-        int position = (day.year - mController.getMinYear())
+        final int position = (day.year - mController.getMinYear())
                 * SimpleMonthAdapter.MONTHS_IN_YEAR + day.month;
+        Log.d(TAG, "Year: " + day.year);
 
         View child;
         int i = 0;
@@ -291,13 +204,24 @@ public class DayPickerView extends ListView implements OnScrollListener {
                         position, LIST_TOP_OFFSET, GOTO_SCROLL_DURATION);
                 return true;
             } else {
-                setSelectionFromTop(position, LIST_TOP_OFFSET);
-                onScrollStateChanged(this, OnScrollListener.SCROLL_STATE_IDLE);
+                postSetSelection(position);
             }
         } else if (setSelected) {
             setMonthDisplayed(mSelectedDay);
         }
         return false;
+    }
+
+    public void postSetSelection(final int position) {
+        clearFocus();
+        post(new Runnable() {
+
+            @Override
+            public void run() {
+                setSelection(position);
+            }
+        });
+        onScrollStateChanged(this, OnScrollListener.SCROLL_STATE_IDLE);
     }
 
     /**
@@ -390,5 +314,37 @@ public class DayPickerView extends ListView implements OnScrollListener {
                 mPreviousScrollState = mNewState;
             }
         }
+    }
+
+    /**
+     * Gets the position of the view that is most prominently displayed within the list view.
+     */
+    public int getMostVisiblePosition() {
+        final int firstPosition = getFirstVisiblePosition();
+        final int height = getHeight();
+
+        int maxDisplayedHeight = 0;
+        int mostVisibleIndex = 0;
+        int i=0;
+        int bottom = 0;
+        while (bottom < height) {
+            View child = getChildAt(i);
+            if (child == null) {
+                break;
+            }
+            bottom = child.getBottom();
+            int displayedHeight = Math.min(bottom, height) - Math.max(0, child.getTop());
+            if (displayedHeight > maxDisplayedHeight) {
+                mostVisibleIndex = i;
+                maxDisplayedHeight = displayedHeight;
+            }
+            i++;
+        }
+        return firstPosition + mostVisibleIndex;
+    }
+
+    @Override
+    public void onDateChanged() {
+        goTo(mController.getSelectedDay(), false, true, true);
     }
 }

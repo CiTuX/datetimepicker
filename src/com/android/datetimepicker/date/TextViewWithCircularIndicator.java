@@ -28,9 +28,9 @@ import android.widget.TextView;
 import com.android.datetimepicker.R;
 
 /**
- * A text view which, when pressed or selected, displays a blue circle around the text.
+ * A text view which, when pressed or activated, displays a blue circle around the text.
  */
-public class SelectableTextView extends TextView {
+public class TextViewWithCircularIndicator extends TextView {
 
     private static final int SELECTED_CIRCLE_ALPHA = 60;
 
@@ -38,11 +38,12 @@ public class SelectableTextView extends TextView {
 
     private final int mRadius;
     private final int mCircleColor;
+    private boolean mDrawCircle;
 
-    public SelectableTextView(Context context, AttributeSet attrs) {
+    public TextViewWithCircularIndicator(Context context, AttributeSet attrs) {
         super(context, attrs);
         Resources res = context.getResources();
-        mCircleColor = res.getColor(R.color.selected_text);
+        mCircleColor = res.getColor(R.color.blue);
         mRadius = res.getDimensionPixelOffset(R.dimen.month_select_circle_radius);
         init();
     }
@@ -56,12 +57,18 @@ public class SelectableTextView extends TextView {
         mCirclePaint.setAlpha(SELECTED_CIRCLE_ALPHA);
     }
 
+    public void drawIndicator(boolean drawCircle) {
+        mDrawCircle = drawCircle;
+    }
+
     @Override
     public void onDraw(Canvas canvas) {
-        if (isPressed() || isSelected()) {
-            canvas.drawCircle(getWidth() / 2, getHeight() / 2, mRadius,
-                    mCirclePaint);
-        }
         super.onDraw(canvas);
+        if (mDrawCircle) {
+            final int width = getWidth();
+            final int height = getHeight();
+            int radius = Math.min(width, height) / 2;
+            canvas.drawCircle(width / 2, height / 2, radius, mCirclePaint);
+        }
     }
 }

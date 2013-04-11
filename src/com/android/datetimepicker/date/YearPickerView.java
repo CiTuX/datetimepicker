@@ -17,52 +17,129 @@
 package com.android.datetimepicker.date;
 
 import android.content.Context;
-import android.view.Gravity;
+import android.content.res.Resources;
+import android.graphics.drawable.StateListDrawable;
+import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.NumberPicker;
-import android.widget.NumberPicker.OnValueChangeListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.android.datetimepicker.R;
+import com.android.datetimepicker.date.DatePickerDialog.OnDateChangedListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A number picker allowing a user to choose a specific year.
+ * Displays a selectable list of years.
  */
-public class YearPickerView extends FrameLayout implements OnValueChangeListener {
+public class YearPickerView extends ListView implements OnItemClickListener, OnDateChangedListener {
 
-    private final NumberPicker mPicker;
     private final DatePickerController mController;
+    private YearAdapter mAdapter;
+    private int mViewSize;
+    private int mChildSize;
+    private TextViewWithCircularIndicator mSelectedView;
 
+    /**
+     * @param context
+     */
     public YearPickerView(Context context, DatePickerController controller) {
         super(context);
         mController = controller;
+        mController.registerOnDateChangedListener(this);
+        setVerticalFadingEdgeEnabled(true);
         ViewGroup.LayoutParams frame = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT);
-        setLayoutParams(frame);
-        mPicker = new NumberPicker(context);
-        LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.CENTER;
-        mPicker.setLayoutParams(params);
-        mPicker.setOnLongPressUpdateInterval(100);
-        mPicker.setMinValue(controller.getMinYear());
-        mPicker.setMaxValue(controller.getMaxYear());
-        mPicker.setWrapSelectorWheel(false);
-        mPicker.setValue(controller.getSelectedDay().year);
-        mPicker.setOnValueChangedListener(this);
-        addView(mPicker);
+        setLayoutParams(frame);
+        Resources res = context.getResources();
+        mViewSize = res.getDimensionPixelOffset(R.dimen.pager_height);
+        mChildSize = res.getDimensionPixelOffset(R.dimen.year_label_height);
+        setFadingEdgeLength(mChildSize / 3);
+        init(context);
+        setOnItemClickListener(this);
+        setSelector(new StateListDrawable());
+        setDividerHeight(0);
+        onDateChanged();
     }
 
-    public void setValue(int value) {
-        mPicker.setValue(value);
-    }
-
-    public void onChange() {
-        mPicker.setMinValue(mController.getMinYear());
-        mPicker.setMaxValue(mController.getMaxYear());
-        requestLayout();
+    private void init(Context context) {
+        ArrayList<String> years = new ArrayList<String>();
+        for (int year = mController.getMinYear(); year <= mController.getMaxYear(); year++) {
+            years.add(Integer.valueOf(year).toString());
+        }
+        mAdapter = new YearAdapter(context, R.layout.year_label_text_view, years);
+        setAdapter(mAdapter);
     }
 
     @Override
-    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-        mController.onYearPickerSelectionChanged(newVal);
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        mController.tryVibrate();
+        TextViewWithCircularIndicator clickedView = (TextViewWithCircularIndicator) view;
+        if (mSelectedView != clickedView) {
+            mSelectedView.drawIndicator(false);
+            mSelectedView.requestLayout();
+            clickedView.drawIndicator(true);
+            clickedView.requestLayout();
+            mSelectedView = clickedView;
+        }
+        mController.onYearSelected(getYearFromTextView(clickedView));
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private int getYearFromTextView(TextView view) {
+        return Integer.valueOf(view.getText().toString());
+    }
+
+    private class YearAdapter extends ArrayAdapter<String> {
+
+        public YearAdapter(Context context, int resource, List<String> objects) {
+            super(context, resource, objects);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextViewWithCircularIndicator v = (TextViewWithCircularIndicator)
+                    super.getView(position, convertView, parent);
+            v.requestLayout();
+            int year = getYearFromTextView(v);
+            boolean selected = mController.getSelectedDay().year == year;
+            v.drawIndicator(selected);
+            if (selected) {
+                mSelectedView = v;
+            }
+            return v;
+        }
+    }
+
+    public void postSetSelection(final int position) {
+        post(new Runnable() {
+
+            @Override
+            public void run() {
+                setSelection(position);
+                requestLayout();
+            }
+        });
+    }
+
+    public void postSetSelectionFromTop(final int position) {
+        post(new Runnable() {
+
+            @Override
+            public void run() {
+                setSelectionFromTop(position, mViewSize / 2 - mChildSize / 2);
+                requestLayout();
+            }
+        });
+    }
+
+    @Override
+    public void onDateChanged() {
+        mAdapter.notifyDataSetChanged();
+        postSetSelectionFromTop(mController.getSelectedDay().year - mController.getMinYear());
     }
 }

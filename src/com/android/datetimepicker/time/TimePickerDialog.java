@@ -36,9 +36,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.datetimepicker.R;
-
-import com.android.datetimepicker.time.RadialPickerLayout.OnValueSelectedListener;
 import com.android.datetimepicker.Utils;
+import com.android.datetimepicker.time.RadialPickerLayout.OnValueSelectedListener;
 
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
@@ -404,7 +403,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mHourView.setTextColor(hourColor);
         mMinuteView.setTextColor(minuteColor);
 
-        ObjectAnimator pulseAnimator = Utils.getPulseAnimator(labelToAnimate);
+        ObjectAnimator pulseAnimator = Utils.getPulseAnimator(labelToAnimate, 0.85f, 1.1f);
         if (delayLabelAnimate) {
             pulseAnimator.setStartDelay(PULSE_ANIMATOR_DELAY);
         }

@@ -16,9 +16,13 @@
 
 package com.android.datetimepicker.date;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +43,8 @@ import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -49,15 +55,14 @@ public class DatePickerDialog extends DialogFragment implements
 
     private static final String TAG = "DatePickerDialog";
 
-    private static final int TOTAL_VIEWS = 2;
-
+    private static final int UNINITIALIZED = -1;
     private static final int MONTH_AND_DAY_VIEW = 0;
     private static final int YEAR_VIEW = 1;
 
     private static final String KEY_SELECTED_YEAR = "year";
     private static final String KEY_SELECTED_MONTH = "month";
     private static final String KEY_SELECTED_DAY = "day";
-    private static final String KEY_LIST_POSITION = "position";
+    private static final String KEY_LIST_POSITION = "list_position";
     private static final String KEY_WEEK_START = "week_start";
     private static final String KEY_YEAR_START = "year_start";
     private static final String KEY_YEAR_END = "year_end";
@@ -66,13 +71,15 @@ public class DatePickerDialog extends DialogFragment implements
     private static final int DEFAULT_START_YEAR = 1900;
     private static final int DEFAULT_END_YEAR = 2100;
 
-    private static final int ANIMATION_DURATION = 500;
+    private static final int ANIMATION_DURATION = 300;
+    private static final int ANIMATION_DELAY = 500;
 
     private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy", Locale.getDefault());
     private static SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("dd", Locale.getDefault());
 
     private final Calendar mCalendar = Calendar.getInstance();
     private OnDateSetListener mCallBack;
+    private HashSet<OnDateChangedListener> mListeners = new HashSet<OnDateChangedListener>();
 
     private ViewAnimator mAnimator;
 
@@ -85,13 +92,16 @@ public class DatePickerDialog extends DialogFragment implements
     private YearPickerView mYearPickerView;
     private Button mDoneButton;
 
-    private int mCurrentView;
+    private int mCurrentView = UNINITIALIZED;
 
     private int mWeekStart = mCalendar.getFirstDayOfWeek();
     private int mMinYear = DEFAULT_START_YEAR;
     private int mMaxYear = DEFAULT_END_YEAR;
 
-    private final View[] mViews = new View[TOTAL_VIEWS];
+    private Vibrator mVibrator;
+    private long mLastVibrate;
+
+    private boolean mDelayAnimation = true;
 
     /**
      * The callback used to indicate the user is done filling in the date.
@@ -107,6 +117,15 @@ public class DatePickerDialog extends DialogFragment implements
          */
         void onDateSet(DatePickerDialog dialog, int year, int monthOfYear, int dayOfMonth);
     }
+
+    /**
+     * The callback used to notify other date picker components of a change in selected date.
+     */
+    interface OnDateChangedListener {
+
+        public void onDateChanged();
+    }
+
 
     public DatePickerDialog() {
         // Empty constructor required for dialog fragment.
@@ -136,8 +155,10 @@ public class DatePickerDialog extends DialogFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().getWindow().setSoftInputMode(
+        final Activity activity = getActivity();
+        activity.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        mVibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
         if (savedInstanceState != null) {
             mCalendar.set(Calendar.YEAR, savedInstanceState.getInt(KEY_SELECTED_YEAR));
             mCalendar.set(Calendar.MONTH, savedInstanceState.getInt(KEY_SELECTED_MONTH));
@@ -151,11 +172,17 @@ public class DatePickerDialog extends DialogFragment implements
         outState.putInt(KEY_SELECTED_YEAR, mCalendar.get(Calendar.YEAR));
         outState.putInt(KEY_SELECTED_MONTH, mCalendar.get(Calendar.MONTH));
         outState.putInt(KEY_SELECTED_DAY, mCalendar.get(Calendar.DAY_OF_MONTH));
-        outState.putInt(KEY_LIST_POSITION, mDayPickerView.getFirstVisiblePosition());
         outState.putInt(KEY_WEEK_START, mWeekStart);
         outState.putInt(KEY_YEAR_START, mMinYear);
         outState.putInt(KEY_YEAR_END, mMaxYear);
         outState.putInt(KEY_CURRENT_VIEW, mCurrentView);
+        int listPosition = -1;
+        if (mCurrentView == MONTH_AND_DAY_VIEW) {
+            listPosition = mDayPickerView.getMostVisiblePosition();
+        } else if (mCurrentView == YEAR_VIEW) {
+            listPosition = mYearPickerView.getFirstVisiblePosition();
+        }
+        outState.putInt(KEY_LIST_POSITION, listPosition);
     }
 
     @Override
@@ -173,27 +200,24 @@ public class DatePickerDialog extends DialogFragment implements
         mSelectedDayTextView = (TextView) view.findViewById(R.id.date_picker_day);
         mYearView = (TextView) view.findViewById(R.id.date_picker_year);
         mYearView.setOnClickListener(this);
-        final Activity activity = getActivity();
 
+        int listPosition = -1;
         int currentView = MONTH_AND_DAY_VIEW;
-        mDayPickerView = new DayPickerView(activity, this);
         if (savedInstanceState != null) {
-            Log.d(TAG,
-                    "Setting first visible position: "
-                            + savedInstanceState.getInt(KEY_LIST_POSITION));
-            mDayPickerView.setSelectionFromTop(savedInstanceState.getInt(KEY_LIST_POSITION),
-                    DayPickerView.LIST_TOP_OFFSET);
             mWeekStart = savedInstanceState.getInt(KEY_WEEK_START);
             mMinYear = savedInstanceState.getInt(KEY_YEAR_START);
             mMaxYear = savedInstanceState.getInt(KEY_YEAR_END);
             currentView = savedInstanceState.getInt(KEY_CURRENT_VIEW);
+            listPosition = savedInstanceState.getInt(KEY_LIST_POSITION);
         }
+
+        final Activity activity = getActivity();
+        mDayPickerView = new DayPickerView(activity, this);
         mYearPickerView = new YearPickerView(activity, this);
 
-        mViews[MONTH_AND_DAY_VIEW] = mDayPickerView;
-        mViews[YEAR_VIEW] = mYearPickerView;
-
         mAnimator = (ViewAnimator) view.findViewById(R.id.animator);
+        mAnimator.addView(mDayPickerView);
+        mAnimator.addView(mYearPickerView);
         // TODO: Replace with animation decided upon by the design team.
         Animation animation = new AlphaAnimation(0.0f, 1.0f);
         animation.setDuration(ANIMATION_DURATION);
@@ -202,14 +226,13 @@ public class DatePickerDialog extends DialogFragment implements
         Animation animation2 = new AlphaAnimation(1.0f, 0.0f);
         animation2.setDuration(ANIMATION_DURATION);
         mAnimator.setOutAnimation(animation2);
-        mAnimator.addView(mDayPickerView);
-        mAnimator.addView(mYearPickerView);
 
         mDoneButton = (Button) view.findViewById(R.id.done);
         mDoneButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                tryVibrate();
                 if (mCallBack != null) {
                     mCallBack.onDateSet(DatePickerDialog.this, mCalendar.get(Calendar.YEAR),
                             mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));
@@ -221,22 +244,48 @@ public class DatePickerDialog extends DialogFragment implements
         updateDisplay();
         setCurrentView(currentView);
 
+        if (listPosition != -1) {
+            if (currentView == MONTH_AND_DAY_VIEW) {
+                mDayPickerView.postSetSelection(listPosition);
+            } else if (currentView == YEAR_VIEW) {
+                mYearPickerView.postSetSelection(listPosition);
+            }
+        }
         return view;
     }
 
     private void setCurrentView(final int viewIndex) {
         switch (viewIndex) {
             case MONTH_AND_DAY_VIEW:
-                mCurrentView = viewIndex;
-                mMonthAndDayView.setSelected(true);
-                mYearView.setSelected(false);
-                mAnimator.setDisplayedChild(MONTH_AND_DAY_VIEW);
+                ObjectAnimator pulseAnimator = Utils.getPulseAnimator(mMonthAndDayView, 0.9f,
+                        1.05f);
+                if (mDelayAnimation) {
+                    pulseAnimator.setStartDelay(ANIMATION_DELAY);
+                    mDelayAnimation = false;
+                }
+                mDayPickerView.onDateChanged();
+                if (mCurrentView != viewIndex) {
+                    mMonthAndDayView.setSelected(true);
+                    mYearView.setSelected(false);
+                    mAnimator.setDisplayedChild(MONTH_AND_DAY_VIEW);
+                    mCurrentView = viewIndex;
+                }
+                pulseAnimator.start();
                 break;
             case YEAR_VIEW:
-                mCurrentView = viewIndex;
-                mMonthAndDayView.setSelected(false);
-                mYearView.setSelected(true);
-                mAnimator.setDisplayedChild(YEAR_VIEW);
+                pulseAnimator = Utils.getPulseAnimator(mYearView, 0.85f, 1.1f);
+                if (mDelayAnimation) {
+                    pulseAnimator.setStartDelay(ANIMATION_DELAY);
+                    mDelayAnimation = false;
+                }
+                mYearPickerView.onDateChanged();
+                if (mCurrentView != viewIndex) {
+                    mMonthAndDayView.setSelected(false);
+                    mYearView.setSelected(true);
+                    mAnimator.setDisplayedChild(YEAR_VIEW);
+                    mCurrentView = viewIndex;
+                }
+                pulseAnimator.start();
                 break;
         }
     }
@@ -271,7 +320,6 @@ public class DatePickerDialog extends DialogFragment implements
         mMaxYear = endYear;
         if (mDayPickerView != null) {
             mDayPickerView.onChange();
-            mYearPickerView.onChange();
         }
     }
 
@@ -293,6 +341,7 @@ public class DatePickerDialog extends DialogFragment implements
 
     @Override
     public void onClick(View v) {
+        tryVibrate();
         if (v.getId() == R.id.date_picker_year) {
             setCurrentView(YEAR_VIEW);
         } else if (v.getId() == R.id.date_picker_month_and_day) {
@@ -301,29 +350,28 @@ public class DatePickerDialog extends DialogFragment implements
     }
 
     @Override
-    public void onYearPickerSelectionChanged(int year) {
+    public void onYearSelected(int year) {
         adjustDayInMonthIfNeeded(mCalendar.get(Calendar.MONTH), year);
         mCalendar.set(Calendar.YEAR, year);
-        mDayPickerView.setCalendarDate(getSelectedDay());
-        updateDisplay();
-    }
-
-    @Override
-    public void onMonthPickerSelectionChanged(int month) {
-        adjustDayInMonthIfNeeded(month, mCalendar.get(Calendar.YEAR));
-        mCalendar.set(Calendar.MONTH, month);
-        mDayPickerView.setCalendarDate(getSelectedDay());
+        updatePickers();
         setCurrentView(MONTH_AND_DAY_VIEW);
         updateDisplay();
     }
 
     @Override
-    public void onDayPickerSelectionChanged(int year, int month, int day) {
+    public void onDayOfMonthSelected(int year, int month, int day) {
         mCalendar.set(Calendar.YEAR, year);
         mCalendar.set(Calendar.MONTH, month);
         mCalendar.set(Calendar.DAY_OF_MONTH, day);
-        mYearPickerView.setValue(mCalendar.get(Calendar.YEAR));
+        updatePickers();
         updateDisplay();
+    }
+
+    private void updatePickers() {
+        Iterator<OnDateChangedListener> iterator = mListeners.iterator();
+        while (iterator.hasNext()) {
+            iterator.next().onDateChanged();
+        }
     }
 
 
@@ -345,5 +393,31 @@ public class DatePickerDialog extends DialogFragment implements
     @Override
     public int getFirstDayOfWeek() {
         return mWeekStart;
+    }
+
+    @Override
+    public void registerOnDateChangedListener(OnDateChangedListener listener) {
+        mListeners.add(listener);
+    }
+
+    @Override
+    public void unregisterOnDateChangedListener(OnDateChangedListener listener) {
+        mListeners.remove(listener);
+    }
+
+    /**
+     * Try to vibrate. To prevent this becoming a single continuous vibration, nothing will
+     * happen if we have vibrated very recently.
+     */
+    @Override
+    public void tryVibrate() {
+        if (mVibrator != null) {
+            long now = SystemClock.uptimeMillis();
+            // We want to try to vibrate each individual tick discretely.
+            if (now - mLastVibrate >= 125) {
+                mVibrator.vibrate(5);
+                mLastVibrate = now;
+            }
+        }
     }
 }
