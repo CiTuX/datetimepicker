@@ -51,13 +51,13 @@ public class YearPickerView extends ListView implements OnItemClickListener, OnD
         super(context);
         mController = controller;
         mController.registerOnDateChangedListener(this);
-        setVerticalFadingEdgeEnabled(true);
         ViewGroup.LayoutParams frame = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT);
         setLayoutParams(frame);
         Resources res = context.getResources();
-        mViewSize = res.getDimensionPixelOffset(R.dimen.pager_height);
+        mViewSize = res.getDimensionPixelOffset(R.dimen.date_picker_view_animator_height);
         mChildSize = res.getDimensionPixelOffset(R.dimen.year_label_height);
+        setVerticalFadingEdgeEnabled(true);
         setFadingEdgeLength(mChildSize / 3);
         init(context);
         setOnItemClickListener(this);

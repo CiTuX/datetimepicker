@@ -183,8 +183,8 @@ public class SimpleMonthView extends View {
         DAY_SELECTED_CIRCLE_SIZE = res
                 .getDimensionPixelSize(R.dimen.day_number_select_circle_radius);
 
-        mRowHeight = (res.getDimensionPixelOffset(R.dimen.pager_height) - MONTH_HEADER_SIZE)
-                / MAX_NUM_ROWS;
+        mRowHeight = (res.getDimensionPixelOffset(R.dimen.date_picker_view_animator_height)
+                - MONTH_HEADER_SIZE) / MAX_NUM_ROWS;
         // Sets up any standard paints that will be used
         initView();
     }

@@ -29,7 +29,7 @@
     <color name="date_picker_text_normal">#FF999999</color>
 
     <color name="calendar_header">#999999</color>
-    <color name="calendar_pager">#FFECEDEE</color>
+    <color name="date_picker_view_animator">#FFECEDEE</color>
     <color name="calendar_selected_date_text">#FFD1D2D4</color>
     <color name="done_button_color">#FFECEDEE</color>
 </resources>

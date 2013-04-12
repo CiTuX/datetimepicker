@@ -15,9 +15,8 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="?android:attr/buttonBarStyle"
-    android:layout_width="match_parent"
+    android:layout_width="@dimen/date_picker_component_width"
     android:layout_height="wrap_content"
-    android:layout="@+id/done_layout"
     android:orientation="vertical" >
 
     <Button

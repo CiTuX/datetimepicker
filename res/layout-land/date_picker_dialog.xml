@@ -16,20 +16,27 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/date_picker_dialog_height"
+    android:layout_height="@dimen/date_picker_view_animator_height"
     android:gravity="center"
     android:orientation="horizontal" >
 
     <LinearLayout
-        android:layout_width="@dimen/date_picker_width"
-        android:layout_height="@dimen/date_picker_dialog_height"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:background="@color/white"
         android:orientation="vertical" >
 
-        <include layout="@layout/date_picker_header_view" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:orientation="vertical" >
 
-        <include layout="@layout/date_picker_selected_date" />
+            <include layout="@layout/date_picker_header_view" />
+
+            <include layout="@layout/date_picker_selected_date" />
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -44,18 +51,6 @@
         android:layout_height="match_parent"
         android:background="@color/line_background" />
 
-    <FrameLayout
-        android:layout_width="@dimen/pager_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:background="@color/calendar_pager" >
-
-        <ViewAnimator
-            android:id="@+id/animator"
-            android:layout_width="@dimen/pager_width"
-            android:layout_height="@dimen/pager_height"
-            android:background="@color/calendar_pager"
-            android:gravity="center" />
-    </FrameLayout>
+    <include layout="@layout/date_picker_view_animator" />
 
 </LinearLayout>
