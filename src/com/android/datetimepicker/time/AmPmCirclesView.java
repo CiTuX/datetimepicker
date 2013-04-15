@@ -35,6 +35,11 @@ import java.text.DateFormatSymbols;
 public class AmPmCirclesView extends View {
     private static final String TAG = "AmPmCirclesView";
 
+    // Alpha level of blue color for selected circle.
+    private static final int SELECTED_ALPHA = 51;
+    // Alpha level of blue color for pressed circle.
+    private static final int PRESSED_ALPHA = 175;
+
     private final Paint mPaint = new Paint();
     private int mWhite;
     private int mAmPmTextColor;
@@ -138,7 +143,7 @@ public class AmPmCirclesView extends View {
             int circleRadius =
                     (int) (Math.min(layoutXCenter, layoutYCenter) * mCircleRadiusMultiplier);
             mAmPmCircleRadius = (int) (circleRadius * mAmPmCircleRadiusMultiplier);
-            int textSize = mAmPmCircleRadius * 2 / 3;
+            int textSize = mAmPmCircleRadius * 3 / 4;
             mPaint.setTextSize(textSize);
 
             // Line up the vertical center of the AM/PM circles with the bottom of the main circle.
@@ -151,7 +156,7 @@ public class AmPmCirclesView extends View {
             mDrawValuesReady = true;
         }
 
-        // We'll need to draw either a ligther blue (for selection), a darker blue (for touching)
+        // We'll need to draw either a lighter blue (for selection), a darker blue (for touching)
         // or white (for not selected).
         int amColor = mWhite;
         int amAlpha = 255;
@@ -159,17 +164,17 @@ public class AmPmCirclesView extends View {
         int pmAlpha = 255;
         if (mAmOrPm == AM) {
             amColor = mBlue;
-            amAlpha = 60;
+            amAlpha = SELECTED_ALPHA;
         } else if (mAmOrPm == PM) {
             pmColor = mBlue;
-            pmAlpha = 60;
+            pmAlpha = SELECTED_ALPHA;
         }
         if (mAmOrPmPressed == AM) {
             amColor = mBlue;
-            amAlpha = 175;
+            amAlpha = PRESSED_ALPHA;
         } else if (mAmOrPmPressed == PM) {
             pmColor = mBlue;
-            pmAlpha = 175;
+            pmAlpha = PRESSED_ALPHA;
         }
 
         // Draw the two circles.
