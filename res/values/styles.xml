@@ -33,11 +33,7 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
-    <!-- Styles for dialog labels. -->
-    <style name="time_label_thin" />
-    <style name="done_button_light" />
-
-    <style name="time_label" parent="time_label_thin">
+    <style name="time_label">
         <item name="android:textSize">@dimen/time_label_size</item>
         <item name="android:textColor">@color/numbers_text_color</item>
     </style>
@@ -46,6 +42,7 @@
         <item name="android:textSize">@dimen/ampm_label_size</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/ampm_text_color</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="day_of_week_label_condensed" />
