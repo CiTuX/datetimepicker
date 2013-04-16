@@ -339,7 +339,7 @@ public class SimpleMonthView extends View {
         sbuf.append(mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG,
                 Locale.getDefault()));
         sbuf.append(" ");
-        sbuf.append(mYear);
+        sbuf.append(String.format("%d", mYear));
         canvas.drawText(sbuf.toString(), x, y, mMonthTitlePaint);
     }
 
@@ -380,7 +380,7 @@ public class SimpleMonthView extends View {
             } else {
                 mMonthNumPaint.setColor(mDayTextColor);
             }
-            canvas.drawText(Integer.valueOf(dayNumber).toString(), x, y, mMonthNumPaint);
+            canvas.drawText(String.format("%d", dayNumber), x, y, mMonthNumPaint);
 
             j++;
             if (j == mNumDays) {
