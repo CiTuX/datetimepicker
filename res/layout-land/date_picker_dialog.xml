@@ -46,11 +46,6 @@
         <include layout="@layout/date_picker_done_button" />
     </LinearLayout>
 
-    <View
-        android:layout_width="1dip"
-        android:layout_height="match_parent"
-        android:background="@color/line_background" />
-
     <include layout="@layout/date_picker_view_animator" />
 
 </LinearLayout>
