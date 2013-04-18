@@ -24,6 +24,8 @@
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/done_label" 
+        android:minHeight="48dp"
+        android:text="@string/done_label"
+        android:textSize="@dimen/done_label_size"
         android:textColor="@color/done_text_color" />
 </LinearLayout>
