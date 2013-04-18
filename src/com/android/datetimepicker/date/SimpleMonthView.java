@@ -334,7 +334,7 @@ public class SimpleMonthView extends View {
 
     private void drawMonthTitle(Canvas canvas) {
         int x = (mWidth + 2 * mPadding) / 2;
-        int y = (MONTH_HEADER_SIZE - MONTH_DAY_LABEL_TEXT_SIZE) / 2;
+        int y = (MONTH_HEADER_SIZE - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
         StringBuffer sbuf = new StringBuffer();
         sbuf.append(mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG,
                 Locale.getDefault()));
