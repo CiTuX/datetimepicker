@@ -67,6 +67,7 @@ public class DatePickerDialog extends DialogFragment implements
     private static final String KEY_YEAR_START = "year_start";
     private static final String KEY_YEAR_END = "year_end";
     private static final String KEY_CURRENT_VIEW = "current_view";
+    private static final String KEY_LIST_POSITION_OFFSET = "list_position_offset";
 
     private static final int DEFAULT_START_YEAR = 1900;
     private static final int DEFAULT_END_YEAR = 2100;
@@ -181,6 +182,7 @@ public class DatePickerDialog extends DialogFragment implements
             listPosition = mDayPickerView.getMostVisiblePosition();
         } else if (mCurrentView == YEAR_VIEW) {
             listPosition = mYearPickerView.getFirstVisiblePosition();
+            outState.putInt(KEY_LIST_POSITION_OFFSET, mYearPickerView.getFirstPositionOffset());
         }
         outState.putInt(KEY_LIST_POSITION, listPosition);
     }
@@ -202,6 +204,7 @@ public class DatePickerDialog extends DialogFragment implements
         mYearView.setOnClickListener(this);
 
         int listPosition = -1;
+        int listPositionOffset = 0;
         int currentView = MONTH_AND_DAY_VIEW;
         if (savedInstanceState != null) {
             mWeekStart = savedInstanceState.getInt(KEY_WEEK_START);
@@ -209,6 +212,7 @@ public class DatePickerDialog extends DialogFragment implements
             mMaxYear = savedInstanceState.getInt(KEY_YEAR_END);
             currentView = savedInstanceState.getInt(KEY_CURRENT_VIEW);
             listPosition = savedInstanceState.getInt(KEY_LIST_POSITION);
+            listPositionOffset = savedInstanceState.getInt(KEY_LIST_POSITION_OFFSET);
         }
 
         final Activity activity = getActivity();
@@ -248,7 +252,7 @@ public class DatePickerDialog extends DialogFragment implements
             if (currentView == MONTH_AND_DAY_VIEW) {
                 mDayPickerView.postSetSelection(listPosition);
             } else if (currentView == YEAR_VIEW) {
-                mYearPickerView.postSetSelection(listPosition);
+                mYearPickerView.postSetSelectionFromTop(listPosition, listPositionOffset);
             }
         }
         return view;
