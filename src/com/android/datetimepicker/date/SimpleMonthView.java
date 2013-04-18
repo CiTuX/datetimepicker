@@ -27,6 +27,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.SparseArray;
 import android.view.MotionEvent;
@@ -41,6 +42,7 @@ import com.googlecode.eyesfree.utils.TouchExplorationHelper;
 
 import java.security.InvalidParameterException;
 import java.util.Calendar;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -129,6 +131,9 @@ public class SimpleMonthView extends View {
     protected Paint mSelectedCirclePaint;
     protected Paint mMonthDayLabelPaint;
 
+    private final Formatter mFormatter;
+    private final StringBuilder mStringBuilder;
+
     // The Julian day of the first day displayed by this item
     protected int mFirstJulianDay = -1;
     // The month of the first day in this week
@@ -191,6 +196,9 @@ public class SimpleMonthView extends View {
         mTodayNumberColor = res.getColor(R.color.blue);
         mMonthTitleColor = res.getColor(R.color.white);
         mMonthTitleBGColor = res.getColor(R.color.circle_background);
+
+        mStringBuilder = new StringBuilder(50);
+        mFormatter = new Formatter(mStringBuilder, Locale.getDefault());
 
         MINI_DAY_NUMBER_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.day_number_size);
         MONTH_LABEL_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.month_label_size);
@@ -399,12 +407,14 @@ public class SimpleMonthView extends View {
     private void drawMonthTitle(Canvas canvas) {
         int x = (mWidth + 2 * mPadding) / 2;
         int y = (MONTH_HEADER_SIZE - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
-        StringBuffer sbuf = new StringBuffer();
-        sbuf.append(mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG,
-                Locale.getDefault()));
-        sbuf.append(" ");
-        sbuf.append(String.format("%d", mYear));
-        canvas.drawText(sbuf.toString(), x, y, mMonthTitlePaint);
+        int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
+                | DateUtils.FORMAT_NO_MONTH_DAY;
+
+        mStringBuilder.setLength(0);
+        long millis = mCalendar.getTimeInMillis();
+        String title = DateUtils.formatDateRange(getContext(), mFormatter, millis, millis, flags,
+                Time.getCurrentTimezone()).toString();
+        canvas.drawText(title, x, y, mMonthTitlePaint);
     }
 
     private void drawMonthDayLabels(Canvas canvas) {
