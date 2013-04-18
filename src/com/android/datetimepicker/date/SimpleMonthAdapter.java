@@ -18,13 +18,12 @@ package com.android.datetimepicker.date;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView.LayoutParams;
 import android.widget.BaseAdapter;
+
+import com.android.datetimepicker.date.SimpleMonthView.OnDayClickListener;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -32,14 +31,13 @@ import java.util.HashMap;
 /**
  * An adapter for a list of {@link SimpleMonthView} items.
  */
-public class SimpleMonthAdapter extends BaseAdapter implements OnTouchListener {
+public class SimpleMonthAdapter extends BaseAdapter implements OnDayClickListener {
 
     private static final String TAG = "SimpleMonthAdapter";
 
     private final Context mContext;
     private final DatePickerController mController;
 
-    private GestureDetector mGestureDetector;
     private CalendarDay mSelectedDay;
 
     protected static int WEEK_7_OVERHANG_HEIGHT = 7;
@@ -121,7 +119,6 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnTouchListener {
      * Set up the gesture detector and selected time
      */
     protected void init() {
-        mGestureDetector = new GestureDetector(mContext, new CalendarGestureListener());
         mSelectedDay = new CalendarDay(System.currentTimeMillis());
     }
 
@@ -156,7 +153,7 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnTouchListener {
                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             v.setLayoutParams(params);
             v.setClickable(true);
-            v.setOnTouchListener(this);
+            v.setOnDayClickListener(this);
         }
         if (drawingParams == null) {
             drawingParams = new HashMap<String, Integer>();
@@ -190,15 +187,10 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnTouchListener {
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (mGestureDetector.onTouchEvent(event)) {
-            CalendarDay day = ((SimpleMonthView) v).getDayFromLocation(event.getX(), event.getY());
-            if (day != null) {
-                onDayTapped(day);
-            }
-            return true;
+    public void onDayClick(SimpleMonthView view, CalendarDay day) {
+        if (day != null) {
+            onDayTapped(day);
         }
-        return false;
     }
 
     /**
@@ -210,16 +202,5 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnTouchListener {
         mController.tryVibrate();
         mController.onDayOfMonthSelected(day.year, day.month, day.day);
         setSelectedDay(day);
-    }
-
-    /**
-     * This is here so we can identify single tap events and set the selected
-     * day correctly
-     */
-    protected class CalendarGestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return true;
-        }
     }
 }
