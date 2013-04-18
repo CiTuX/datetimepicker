@@ -347,4 +347,59 @@ public class DayPickerView extends ListView implements OnScrollListener, OnDateC
     public void onDateChanged() {
         goTo(mController.getSelectedDay(), false, true, true);
     }
+
+    /**
+     * Attempts to return the date that has accessibility focus.
+     *
+     * @return The date that has accessibility focus, or {@code null} if no date
+     *         has focus.
+     */
+    private CalendarDay findAccessibilityFocus() {
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            if (child instanceof SimpleMonthView) {
+                final CalendarDay focus = ((SimpleMonthView) child).getAccessibilityFocus();
+                if (focus != null) {
+                    // Clear focus to avoid ListView bug in Jelly Bean MR1.
+                    ((SimpleMonthView) child).clearAccessibilityFocus();
+                    return focus;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Attempts to restore accessibility focus to a given date. No-op if
+     * {@code day} is {@code null}.
+     *
+     * @param day The date that should receive accessibility focus
+     * @return {@code true} if focus was restored
+     */
+    private boolean restoreAccessibilityFocus(CalendarDay day) {
+        if (day == null) {
+            return false;
+        }
+
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            if (child instanceof SimpleMonthView) {
+                if (((SimpleMonthView) child).restoreAccessibilityFocus(day)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    protected void layoutChildren() {
+        final CalendarDay focusedDay = findAccessibilityFocus();
+        super.layoutChildren();
+        restoreAccessibilityFocus(focusedDay);
+    }
 }

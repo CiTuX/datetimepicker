@@ -22,17 +22,27 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.text.format.Time;
+import android.util.SparseArray;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.android.datetimepicker.R;
 import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
+import com.googlecode.eyesfree.utils.TouchExplorationHelper;
 
 import java.security.InvalidParameterException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -152,8 +162,14 @@ public class SimpleMonthView extends View {
 
     private final Calendar mCalendar;
     private final Calendar mDayLabelCalendar;
+    private final MonthViewNodeProvider mNodeProvider;
 
     private int mNumRows = DEFAULT_NUM_ROWS;
+
+    // Optional listener for handling day click actions
+    private OnDayClickListener mOnDayClickListener;
+    // Whether to prevent setting the accessibility delegate
+    private boolean mLockAccessibilityDelegate;
 
     protected int mDayTextColor;
     protected int mTodayNumberColor;
@@ -185,8 +201,50 @@ public class SimpleMonthView extends View {
 
         mRowHeight = (res.getDimensionPixelOffset(R.dimen.date_picker_view_animator_height)
                 - MONTH_HEADER_SIZE) / MAX_NUM_ROWS;
+
+        // Set up accessibility components.
+        mNodeProvider = new MonthViewNodeProvider(context, this);
+        ViewCompat.setAccessibilityDelegate(this, mNodeProvider.getAccessibilityDelegate());
+        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        mLockAccessibilityDelegate = true;
+
         // Sets up any standard paints that will be used
         initView();
+    }
+
+    @Override
+    public void setAccessibilityDelegate(AccessibilityDelegate delegate) {
+        // Workaround for a JB MR1 issue where accessibility delegates on
+        // top-level ListView items are overwritten.
+        if (!mLockAccessibilityDelegate) {
+            super.setAccessibilityDelegate(delegate);
+        }
+    }
+
+    public void setOnDayClickListener(OnDayClickListener listener) {
+        mOnDayClickListener = listener;
+    }
+
+    @Override
+    public boolean onHoverEvent(MotionEvent event) {
+        // First right-of-refusal goes the touch exploration helper.
+        if (mNodeProvider.onHover(this, event)) {
+            return true;
+        }
+        return super.onHoverEvent(event);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_UP:
+                final CalendarDay day = getDayFromLocation(event.getX(), event.getY());
+                if (day != null) {
+                    onDayClick(day);
+                }
+                break;
+        }
+        return true;
     }
 
     /**
@@ -301,6 +359,9 @@ public class SimpleMonthView extends View {
             }
         }
         mNumRows = calculateNumRows();
+
+        // Invalidate cached accessibility information.
+        mNodeProvider.invalidateParent();
     }
 
     public void reuse() {
@@ -330,6 +391,9 @@ public class SimpleMonthView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         mWidth = w;
+
+        // Invalidate cached accessibility information.
+        mNodeProvider.invalidateParent();
     }
 
     private void drawMonthTitle(Canvas canvas) {
@@ -421,4 +485,190 @@ public class SimpleMonthView extends View {
         return new CalendarDay(mYear, mMonth, day);
     }
 
+    /**
+     * Called when the user clicks on a day. Handles callbacks to the
+     * {@link OnDayClickListener} if one is set.
+     *
+     * @param day A time object representing the day that was clicked
+     */
+    private void onDayClick(CalendarDay day) {
+        if (mOnDayClickListener != null) {
+            mOnDayClickListener.onDayClick(this, day);
+        }
+
+        // This is a no-op if accessibility is turned off.
+        mNodeProvider.sendEventForItem(day, AccessibilityEvent.TYPE_VIEW_CLICKED);
+    }
+
+    /**
+     * @return The date that has accessibility focus, or {@code null} if no date
+     *         has focus
+     */
+    public CalendarDay getAccessibilityFocus() {
+        return mNodeProvider.getFocusedItem();
+    }
+
+    /**
+     * Clears accessibility focus within the view. No-op if the view does not
+     * contain accessibility focus.
+     */
+    public void clearAccessibilityFocus() {
+        mNodeProvider.clearFocusedItem();
+    }
+
+    /**
+     * Attempts to restore accessibility focus to the specified date.
+     *
+     * @param day The date which should receive focus
+     * @return {@code false} if the date is not valid for this month view, or
+     *         {@code true} if the date received focus
+     */
+    public boolean restoreAccessibilityFocus(CalendarDay day) {
+        if ((day.year != mYear) || (day.month != mMonth) || (day.day > mNumCells)) {
+            return false;
+        }
+
+        mNodeProvider.setFocusedItem(day);
+        return true;
+    }
+
+    /**
+     * Provides a virtual view hierarchy for interfacing with an accessibility
+     * service.
+     */
+    private class MonthViewNodeProvider extends TouchExplorationHelper<CalendarDay> {
+        private final SparseArray<CalendarDay> mCachedItems = new SparseArray<CalendarDay>();
+        private final Rect mTempRect = new Rect();
+
+        public MonthViewNodeProvider(Context context, View parent) {
+            super(context, parent);
+        }
+
+        @Override
+        public void invalidateItem(CalendarDay item) {
+            super.invalidateItem(item);
+            mCachedItems.delete(getIdForItem(item));
+        }
+
+        @Override
+        public void invalidateParent() {
+            super.invalidateParent();
+            mCachedItems.clear();
+        }
+
+        @Override
+        protected boolean performActionForItem(CalendarDay item, int action, Bundle arguments) {
+            switch (action) {
+                case AccessibilityNodeInfo.ACTION_CLICK:
+                    onDayClick(item);
+                    return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        protected void populateEventForItem(CalendarDay item, AccessibilityEvent event) {
+            event.setContentDescription(getItemDescription(item));
+        }
+
+        @Override
+        protected void populateNodeForItem(CalendarDay item, AccessibilityNodeInfoCompat node) {
+            getItemBounds(item, mTempRect);
+
+            node.setContentDescription(getItemDescription(item));
+            node.setBoundsInParent(mTempRect);
+            node.addAction(AccessibilityNodeInfo.ACTION_CLICK);
+
+            if (item.day == mSelectedDay) {
+                node.setSelected(true);
+            }
+        }
+
+        @Override
+        protected void getVisibleItems(List<CalendarDay> items) {
+            // TODO: Optimize, only return items visible within parent bounds.
+            for (int day = 1; day <= mNumCells; day++) {
+                items.add(getItemForId(day));
+            }
+        }
+
+        @Override
+        protected CalendarDay getItemAt(float x, float y) {
+            return getDayFromLocation(x, y);
+        }
+
+        @Override
+        protected int getIdForItem(CalendarDay item) {
+            return item.day;
+        }
+
+        @Override
+        protected CalendarDay getItemForId(int id) {
+            if ((id < 1) || (id > mNumCells)) {
+                return null;
+            }
+
+            final CalendarDay item;
+            if (mCachedItems.indexOfKey(id) >= 0) {
+                item = mCachedItems.get(id);
+            } else {
+                item = new CalendarDay(mYear, mMonth, id);
+                mCachedItems.put(id, item);
+            }
+
+            return item;
+        }
+
+        /**
+         * Calculates the bounding rectangle of a given time object.
+         *
+         * @param item The time object to calculate bounds for
+         * @param rect The rectangle in which to store the bounds
+         */
+        private void getItemBounds(CalendarDay item, Rect rect) {
+            final int offsetX = mPadding;
+            final int offsetY = MONTH_HEADER_SIZE;
+            final int cellHeight = mRowHeight;
+            final int cellWidth = ((mWidth - (2 * mPadding)) / mNumDays);
+            final int index = ((item.day - 1) + findDayOffset());
+            final int row = (index / mNumDays);
+            final int column = (index % mNumDays);
+            final int x = (offsetX + (column * cellWidth));
+            final int y = (offsetY + (row * cellHeight));
+
+            rect.set(x, y, (x + cellWidth), (y + cellHeight));
+        }
+
+        /**
+         * Generates a description for a given time object. Since this
+         * description will be spoken, the components are ordered by descending
+         * specificity as DAY MONTH YEAR.
+         *
+         * @param item The time object to generate a description for
+         * @return A description of the time object
+         */
+        private CharSequence getItemDescription(CalendarDay item) {
+            final StringBuffer sbuf = new StringBuffer();
+            sbuf.append(String.format("%d", item.day));
+            sbuf.append(" ");
+            sbuf.append(mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG,
+                    Locale.getDefault()));
+            sbuf.append(" ");
+            sbuf.append(String.format("%d", mYear));
+
+            if (item.day == mSelectedDay) {
+                return getContext().getString(R.string.item_is_selected, sbuf);
+            }
+
+            return sbuf;
+        }
+    }
+
+    /**
+     * Handles callbacks when the user clicks on a time object.
+     */
+    public interface OnDayClickListener {
+        public void onDayClick(SimpleMonthView view, CalendarDay day);
+    }
 }
