@@ -27,6 +27,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.SparseArray;
@@ -52,6 +53,7 @@ import java.util.Locale;
  * within the specified month.
  */
 public class SimpleMonthView extends View {
+    private static final String TAG = "SimpleMonthView";
 
     /**
      * These params can be passed into the view to control how it appears.
@@ -404,17 +406,19 @@ public class SimpleMonthView extends View {
         mNodeProvider.invalidateParent();
     }
 
+    private String getMonthAndYearString() {
+        int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
+                | DateUtils.FORMAT_NO_MONTH_DAY;
+        mStringBuilder.setLength(0);
+        long millis = mCalendar.getTimeInMillis();
+        return DateUtils.formatDateRange(getContext(), mFormatter, millis, millis, flags,
+                Time.getCurrentTimezone()).toString();
+    }
+
     private void drawMonthTitle(Canvas canvas) {
         int x = (mWidth + 2 * mPadding) / 2;
         int y = (MONTH_HEADER_SIZE - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
-        int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
-                | DateUtils.FORMAT_NO_MONTH_DAY;
-
-        mStringBuilder.setLength(0);
-        long millis = mCalendar.getTimeInMillis();
-        String title = DateUtils.formatDateRange(getContext(), mFormatter, millis, millis, flags,
-                Time.getCurrentTimezone()).toString();
-        canvas.drawText(title, x, y, mMonthTitlePaint);
+        canvas.drawText(getMonthAndYearString(), x, y, mMonthTitlePaint);
     }
 
     private void drawMonthDayLabels(Canvas canvas) {
@@ -455,7 +459,6 @@ public class SimpleMonthView extends View {
                 mMonthNumPaint.setColor(mDayTextColor);
             }
             canvas.drawText(String.format("%d", dayNumber), x, y, mMonthNumPaint);
-
             j++;
             if (j == mNumDays) {
                 j = 0;
@@ -549,6 +552,8 @@ public class SimpleMonthView extends View {
     private class MonthViewNodeProvider extends TouchExplorationHelper<CalendarDay> {
         private final SparseArray<CalendarDay> mCachedItems = new SparseArray<CalendarDay>();
         private final Rect mTempRect = new Rect();
+
+        Calendar recycle;
 
         public MonthViewNodeProvider(Context context, View parent) {
             super(context, parent);
@@ -659,19 +664,17 @@ public class SimpleMonthView extends View {
          * @return A description of the time object
          */
         private CharSequence getItemDescription(CalendarDay item) {
-            final StringBuffer sbuf = new StringBuffer();
-            sbuf.append(String.format("%d", item.day));
-            sbuf.append(" ");
-            sbuf.append(mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG,
-                    Locale.getDefault()));
-            sbuf.append(" ");
-            sbuf.append(String.format("%d", mYear));
+            if (recycle == null) {
+                recycle = Calendar.getInstance();
+            }
+            recycle.set(item.year, item.month, item.day);
+            CharSequence date = DateFormat.format("dd MMMM yyyy", recycle.getTimeInMillis());
 
             if (item.day == mSelectedDay) {
-                return getContext().getString(R.string.item_is_selected, sbuf);
+                return getContext().getString(R.string.item_is_selected, date);
             }
 
-            return sbuf;
+            return date;
         }
     }
 

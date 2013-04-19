@@ -22,7 +22,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
+import android.text.format.DateUtils;
 import android.util.AttributeSet;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.TextView;
 
 import com.android.datetimepicker.R;
@@ -38,6 +40,8 @@ public class TextViewWithCircularIndicator extends TextView {
 
     private final int mRadius;
     private final int mCircleColor;
+    private final String mItemIsSelectedText;
+
     private boolean mDrawCircle;
 
     public TextViewWithCircularIndicator(Context context, AttributeSet attrs) {
@@ -45,6 +49,8 @@ public class TextViewWithCircularIndicator extends TextView {
         Resources res = context.getResources();
         mCircleColor = res.getColor(R.color.blue);
         mRadius = res.getDimensionPixelOffset(R.dimen.month_select_circle_radius);
+        mItemIsSelectedText = context.getResources().getString(R.string.item_is_selected);
+
         init();
     }
 
@@ -69,6 +75,16 @@ public class TextViewWithCircularIndicator extends TextView {
             final int height = getHeight();
             int radius = Math.min(width, height) / 2;
             canvas.drawCircle(width / 2, height / 2, radius, mCirclePaint);
+        }
+    }
+
+    @Override
+    public CharSequence getContentDescription() {
+        CharSequence itemText = getText();
+        if (mDrawCircle) {
+            return String.format(mItemIsSelectedText, itemText);
+        } else {
+            return itemText;
         }
     }
 }

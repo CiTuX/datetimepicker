@@ -16,6 +16,7 @@
 
 package com.android.datetimepicker.date;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +25,7 @@ import android.widget.AbsListView.LayoutParams;
 import android.widget.BaseAdapter;
 
 import com.android.datetimepicker.date.SimpleMonthView.OnDayClickListener;
+import com.android.datetimepicker.R;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -104,7 +106,7 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnDayClickListene
     /**
      * Updates the selected day and related parameters.
      *
-     * @param selectedTime The time to highlight
+     * @param day The day to highlight
      */
     public void setSelectedDay(CalendarDay day) {
         mSelectedDay = day;
@@ -137,6 +139,7 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnDayClickListene
         return position;
     }
 
+    @SuppressLint("NewApi")
     @SuppressWarnings("unchecked")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -185,6 +188,7 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnDayClickListene
     private boolean isSelectedDayInMonth(int year, int month) {
         return mSelectedDay.year == year && mSelectedDay.month == month;
     }
+
 
     @Override
     public void onDayClick(SimpleMonthView view, CalendarDay day) {

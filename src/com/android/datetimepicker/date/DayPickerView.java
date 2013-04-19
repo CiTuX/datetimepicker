@@ -16,17 +16,26 @@
 
 package com.android.datetimepicker.date;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 
+import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.date.DatePickerDialog.OnDateChangedListener;
 import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * This displays a list of months in a calendar format with selectable days.
@@ -50,6 +59,7 @@ public class DayPickerView extends ListView implements OnScrollListener, OnDateC
     protected int mNumWeeks = 6;
     protected boolean mShowWeekNumber = false;
     protected int mDaysPerWeek = 7;
+    private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy", Locale.getDefault());
 
     // These affect the scroll speed and feel
     protected float mFriction = 1.0f;
@@ -78,6 +88,7 @@ public class DayPickerView extends ListView implements OnScrollListener, OnDateC
     protected int mCurrentScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
     private final DatePickerController mController;
+    private boolean mPerformingScroll;
 
     public DayPickerView(Context context, DatePickerController controller) {
         super(context);
@@ -162,7 +173,6 @@ public class DayPickerView extends ListView implements OnScrollListener, OnDateC
         mTempDay.set(day);
         final int position = (day.year - mController.getMinYear())
                 * SimpleMonthAdapter.MONTHS_IN_YEAR + day.month;
-        Log.d(TAG, "Year: " + day.year);
 
         View child;
         int i = 0;
@@ -400,6 +410,84 @@ public class DayPickerView extends ListView implements OnScrollListener, OnDateC
     protected void layoutChildren() {
         final CalendarDay focusedDay = findAccessibilityFocus();
         super.layoutChildren();
-        restoreAccessibilityFocus(focusedDay);
+        if (mPerformingScroll) {
+            mPerformingScroll = false;
+        } else {
+            restoreAccessibilityFocus(focusedDay);
+        }
+    }
+
+    @Override
+    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+        super.onInitializeAccessibilityEvent(event);
+        event.setItemCount(-1);
+   }
+
+    private String getMonthAndYearString(CalendarDay day) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(day.year, day.month, day.day);
+
+        StringBuffer sbuf = new StringBuffer();
+        sbuf.append(cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()));
+        sbuf.append(" ");
+        sbuf.append(YEAR_FORMAT.format(cal.getTime()));
+        return sbuf.toString();
+    }
+
+    /**
+     * Necessary for accessibility, to ensure we support "scrolling" forward and backward
+     * in the month list.
+     */
+    @Override
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+      super.onInitializeAccessibilityNodeInfo(info);
+      info.addAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
+      info.addAction(AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD);
+    }
+
+    /**
+     * When scroll forward/backward events are received, announce the newly scrolled-to month.
+     */
+    @SuppressLint("NewApi")
+    @Override
+    public boolean performAccessibilityAction(int action, Bundle arguments) {
+        if (action != AccessibilityNodeInfo.ACTION_SCROLL_FORWARD &&
+                action != AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD) {
+            return super.performAccessibilityAction(action, arguments);
+        }
+
+        // Figure out what month is showing.
+        int firstVisiblePosition = getFirstVisiblePosition();
+        int month = firstVisiblePosition % 12;
+        int year = firstVisiblePosition / 12 + mController.getMinYear();
+        CalendarDay day = new CalendarDay(year, month, 1);
+
+        // Scroll either forward or backward one month.
+        if (action == AccessibilityNodeInfo.ACTION_SCROLL_FORWARD) {
+            day.month++;
+            if (day.month == 12) {
+                day.month = 0;
+                day.year++;
+            }
+        } else if (action == AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD) {
+            View firstVisibleView = getChildAt(0);
+            // If the view is fully visible, jump one month back. Otherwise, we'll just jump
+            // to the first day of first visible month.
+            if (firstVisibleView != null && firstVisibleView.getTop() >= -1) {
+                // There's an off-by-one somewhere, so the top of the first visible item will
+                // actually be -1 when it's at the exact top.
+                day.month--;
+                if (day.month == -1) {
+                    day.month = 11;
+                    day.year--;
+                }
+            }
+        }
+
+        // Go to that month.
+        Utils.tryAccessibilityAnnounce(this, getMonthAndYearString(day));
+        goTo(day, true, false, true);
+        mPerformingScroll = true;
+        return true;
     }
 }
