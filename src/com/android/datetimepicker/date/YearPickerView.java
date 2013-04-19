@@ -79,15 +79,19 @@ public class YearPickerView extends ListView implements OnItemClickListener, OnD
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         mController.tryVibrate();
         TextViewWithCircularIndicator clickedView = (TextViewWithCircularIndicator) view;
-        if (mSelectedView != clickedView) {
-            mSelectedView.drawIndicator(false);
-            mSelectedView.requestLayout();
-            clickedView.drawIndicator(true);
-            clickedView.requestLayout();
-            mSelectedView = clickedView;
+        if (clickedView != null) {
+            if (clickedView != mSelectedView) {
+                if (mSelectedView != null) {
+                    mSelectedView.drawIndicator(false);
+                    mSelectedView.requestLayout();
+                }
+                clickedView.drawIndicator(true);
+                clickedView.requestLayout();
+                mSelectedView = clickedView;
+            }
+            mController.onYearSelected(getYearFromTextView(clickedView));
+            mAdapter.notifyDataSetChanged();
         }
-        mController.onYearSelected(getYearFromTextView(clickedView));
-        mAdapter.notifyDataSetChanged();
     }
 
     private int getYearFromTextView(TextView view) {
@@ -115,31 +119,32 @@ public class YearPickerView extends ListView implements OnItemClickListener, OnD
         }
     }
 
-    public void postSetSelection(final int position) {
+    public void postSetSelectionCentered(final int position) {
+        postSetSelectionFromTop(position, mViewSize / 2 - mChildSize / 2);
+    }
+
+    public void postSetSelectionFromTop(final int position, final int offset) {
         post(new Runnable() {
 
             @Override
             public void run() {
-                setSelection(position);
+                setSelectionFromTop(position, offset);
                 requestLayout();
             }
         });
     }
 
-    public void postSetSelectionFromTop(final int position) {
-        post(new Runnable() {
-
-            @Override
-            public void run() {
-                setSelectionFromTop(position, mViewSize / 2 - mChildSize / 2);
-                requestLayout();
-            }
-        });
+    public int getFirstPositionOffset() {
+        final View firstChild = getChildAt(0);
+        if (firstChild == null) {
+            return 0;
+        }
+        return firstChild.getTop();
     }
 
     @Override
     public void onDateChanged() {
         mAdapter.notifyDataSetChanged();
-        postSetSelectionFromTop(mController.getSelectedDay().year - mController.getMinYear());
+        postSetSelectionCentered(mController.getSelectedDay().year - mController.getMinYear());
     }
 }
