@@ -22,4 +22,9 @@
     <string name="minute_picker_description" msgid="6024811202872705251">"Кругавы паўзунок хвiлiннай стрэлкi"</string>
     <string name="select_hours" msgid="7651068754188418859">"Выберыце гадзіны"</string>
     <string name="select_minutes" msgid="8327182090226828481">"Выберыце хвіліны"</string>
+    <string name="day_picker_description" msgid="3968620852217927702">"Сетка дзён памесячна"</string>
+    <string name="year_picker_description" msgid="6963340404644587098">"Спiс гадоў"</string>
+    <string name="select_day" msgid="3973338219107019769">"Выберыце месяц і дзень"</string>
+    <string name="select_year" msgid="2603330600102539372">"Выберыце год"</string>
+    <string name="item_is_selected" msgid="2674929164900463786">"Выбраны элемент <xliff:g id="ITEM">%1$s</xliff:g>"</string>
 </resources>

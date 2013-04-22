@@ -22,4 +22,9 @@
     <string name="minute_picker_description" msgid="6024811202872705251">"Вибір хвилин на циферблаті"</string>
     <string name="select_hours" msgid="7651068754188418859">"Вибрати години"</string>
     <string name="select_minutes" msgid="8327182090226828481">"Вибрати хвилини"</string>
+    <string name="day_picker_description" msgid="3968620852217927702">"Дні місяця – ескізи"</string>
+    <string name="year_picker_description" msgid="6963340404644587098">"Роки – список"</string>
+    <string name="select_day" msgid="3973338219107019769">"Виберіть місяць і день"</string>
+    <string name="select_year" msgid="2603330600102539372">"Виберіть рік"</string>
+    <string name="item_is_selected" msgid="2674929164900463786">"Вибрано: <xliff:g id="ITEM">%1$s</xliff:g>"</string>
 </resources>

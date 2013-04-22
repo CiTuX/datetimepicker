@@ -22,4 +22,9 @@
     <string name="minute_picker_description" msgid="6024811202872705251">"Dispositivo di scorrimento per i minuti"</string>
     <string name="select_hours" msgid="7651068754188418859">"Seleziona le ore"</string>
     <string name="select_minutes" msgid="8327182090226828481">"Seleziona i minuti"</string>
+    <string name="day_picker_description" msgid="3968620852217927702">"Griglia del mese suddivisa per giorni"</string>
+    <string name="year_picker_description" msgid="6963340404644587098">"Elenco degli anni"</string>
+    <string name="select_day" msgid="3973338219107019769">"Seleziona mese e giorno"</string>
+    <string name="select_year" msgid="2603330600102539372">"Seleziona anno"</string>
+    <string name="item_is_selected" msgid="2674929164900463786">"Elemento selezionato: <xliff:g id="ITEM">%1$s</xliff:g>"</string>
 </resources>
