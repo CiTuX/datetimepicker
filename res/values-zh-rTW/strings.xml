@@ -22,4 +22,9 @@
     <string name="minute_picker_description" msgid="6024811202872705251">"分鐘數循環滑桿"</string>
     <string name="select_hours" msgid="7651068754188418859">"選取小時數"</string>
     <string name="select_minutes" msgid="8327182090226828481">"選取分鐘數"</string>
+    <string name="day_picker_description" msgid="3968620852217927702">"日期網格 (按月顯示)"</string>
+    <string name="year_picker_description" msgid="6963340404644587098">"年份清單"</string>
+    <string name="select_day" msgid="3973338219107019769">"選取月份和日期"</string>
+    <string name="select_year" msgid="2603330600102539372">"選取年份"</string>
+    <string name="item_is_selected" msgid="2674929164900463786">"已選取 <xliff:g id="ITEM">%1$s</xliff:g>"</string>
 </resources>

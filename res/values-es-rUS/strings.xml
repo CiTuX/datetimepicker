@@ -22,4 +22,9 @@
     <string name="minute_picker_description" msgid="6024811202872705251">"Control deslizante circular de minutos"</string>
     <string name="select_hours" msgid="7651068754188418859">"Seleccionar horas"</string>
     <string name="select_minutes" msgid="8327182090226828481">"Seleccionar minutos"</string>
+    <string name="day_picker_description" msgid="3968620852217927702">"Cuadrícula mensual de días"</string>
+    <string name="year_picker_description" msgid="6963340404644587098">"Lista de años"</string>
+    <string name="select_day" msgid="3973338219107019769">"Seleccionar mes y día"</string>
+    <string name="select_year" msgid="2603330600102539372">"Seleccionar año"</string>
+    <string name="item_is_selected" msgid="2674929164900463786">"<xliff:g id="ITEM">%1$s</xliff:g> seleccionado"</string>
 </resources>
