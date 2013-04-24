@@ -20,7 +20,8 @@
     <color name="circle_background">#f2f2f2</color>
     <color name="line_background">#cccccc</color>
     <color name="ampm_text_color">#8c8c8c</color>
-    <color name="done_text_color">#8c8c8c</color>
+    <color name="done_text_color_normal">#333333</color>
+    <color name="done_text_color_disabled">#CCCCCC</color>
     <color name="numbers_text_color">#8c8c8c</color>
 
     <color name="transparent_black">#7F000000</color>
