@@ -22,7 +22,7 @@
     <string name="minute_picker_description" msgid="6024811202872705251">"Indicator circular minute"</string>
     <string name="select_hours" msgid="7651068754188418859">"Selectați orele"</string>
     <string name="select_minutes" msgid="8327182090226828481">"Selectați minutele"</string>
-    <string name="day_picker_description" msgid="3968620852217927702">"Afișare lunară"</string>
+    <string name="day_picker_description" msgid="3968620852217927702">"Afișare pe luni"</string>
     <string name="year_picker_description" msgid="6963340404644587098">"Listă de ani"</string>
     <string name="select_day" msgid="3973338219107019769">"Selectați luna și ziua"</string>
     <string name="select_year" msgid="2603330600102539372">"Selectați anul"</string>
