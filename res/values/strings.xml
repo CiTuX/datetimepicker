@@ -53,6 +53,8 @@
     <string name="select_year">Select year</string>
     <!-- Accessibility description for the item that is currently selected. -->
     <string name="item_is_selected"><xliff:g id="item" example="2013">%1$s</xliff:g> selected</string>
+    <!-- Accessibility announcement when a number that had been typed in is deleted [CHAR_LIMIT=NONE] -->
+    <string name="deleted_key"><xliff:g id="key" example="4">%1$s</xliff:g> deleted</string>
 
     <!-- DO NOT TRANSLATE -->
     <string name="time_placeholder">--</string>

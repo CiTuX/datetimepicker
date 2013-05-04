@@ -91,6 +91,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     // For hardware IME input.
     private char mPlaceholderText;
     private String mDoublePlaceholderText;
+    private String mDeletedKeyFormat;
     private boolean mInKbMode;
     private ArrayList<Integer> mTypedTimes;
     private Node mLegalTimesTree;
@@ -275,6 +276,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
 
         // Set up for keyboard mode.
         mDoublePlaceholderText = res.getString(R.string.time_placeholder);
+        mDeletedKeyFormat = res.getString(R.string.deleted_key);
         mPlaceholderText = mDoublePlaceholderText.charAt(0);
         mAmKeyCode = mPmKeyCode = -1;
         generateLegalTimesTree();
@@ -441,7 +443,17 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         } else if (keyCode == KeyEvent.KEYCODE_DEL) {
             if (mInKbMode) {
                 if (!mTypedTimes.isEmpty()) {
-                    deleteLastTypedKey();
+                    int deleted = deleteLastTypedKey();
+                    String deletedKeyStr;
+                    if (deleted == getAmOrPmKeyCode(AM)) {
+                        deletedKeyStr = mAmText;
+                    } else if (deleted == getAmOrPmKeyCode(PM)) {
+                        deletedKeyStr = mPmText;
+                    } else {
+                        deletedKeyStr = String.format("%d", getValFromKeyCode(deleted));
+                    }
+                    Utils.tryAccessibilityAnnounce(mTimePicker,
+                            String.format(mDeletedKeyFormat, deletedKeyStr));
                     updateDisplay(true);
                 }
             }
@@ -501,6 +513,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             return false;
         }
 
+        int val = getValFromKeyCode(keyCode);
+        Utils.tryAccessibilityAnnounce(mTimePicker, String.format("%d", val));
         // Automatically fill in 0's if AM or PM was legally entered.
         if (isTypedTimeFullyLegal()) {
             if (!mIs24HourMode && mTypedTimes.size() <= 3) {
@@ -545,11 +559,12 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         }
     }
 
-    private void deleteLastTypedKey() {
-        mTypedTimes.remove(mTypedTimes.size() - 1);
+    private int deleteLastTypedKey() {
+        int deleted = mTypedTimes.remove(mTypedTimes.size() - 1);
         if (!isTypedTimeFullyLegal()) {
             mDoneButton.setEnabled(false);
         }
+        return deleted;
     }
 
     /**
@@ -600,8 +615,10 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             String minuteStr = (values[1] == -1)? mDoublePlaceholderText :
                 String.format(minuteFormat, values[1]).replace(' ', mPlaceholderText);
             mHourView.setText(hourStr);
+            mHourSpaceView.setText(hourStr);
             mHourView.setTextColor(mBlack);
             mMinuteView.setText(minuteStr);
+            mMinuteSpaceView.setText(minuteStr);
             mMinuteView.setTextColor(mBlack);
             if (!mIs24HourMode) {
                 updateAmPmDisplay(values[2]);
