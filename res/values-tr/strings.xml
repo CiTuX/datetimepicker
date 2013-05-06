@@ -27,4 +27,6 @@
     <string name="select_day" msgid="3973338219107019769">"Ayı ve günü seçin"</string>
     <string name="select_year" msgid="2603330600102539372">"Yılı seçin"</string>
     <string name="item_is_selected" msgid="2674929164900463786">"<xliff:g id="ITEM">%1$s</xliff:g> seçildi"</string>
+    <!-- no translation found for deleted_key (6908431551612331381) -->
+    <skip />
 </resources>
