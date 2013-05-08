@@ -27,4 +27,5 @@
     <string name="select_day" msgid="3973338219107019769">"Chọn tháng và ngày"</string>
     <string name="select_year" msgid="2603330600102539372">"Chọn năm"</string>
     <string name="item_is_selected" msgid="2674929164900463786">"Đã chọn <xliff:g id="ITEM">%1$s</xliff:g>"</string>
+    <string name="deleted_key" msgid="6908431551612331381">"Đã xóa <xliff:g id="KEY">%1$s</xliff:g>"</string>
 </resources>
