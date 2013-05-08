@@ -27,6 +27,5 @@
     <string name="select_day" msgid="3973338219107019769">"Vyberte mesiac a deň"</string>
     <string name="select_year" msgid="2603330600102539372">"Vyberte rok"</string>
     <string name="item_is_selected" msgid="2674929164900463786">"Bola vybratá položka <xliff:g id="ITEM">%1$s</xliff:g>"</string>
-    <!-- no translation found for deleted_key (6908431551612331381) -->
-    <skip />
+    <string name="deleted_key" msgid="6908431551612331381">"<xliff:g id="KEY">%1$s</xliff:g> odstránené"</string>
 </resources>
