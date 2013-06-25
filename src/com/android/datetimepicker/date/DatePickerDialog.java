@@ -19,15 +19,9 @@ package com.android.datetimepicker.date;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.os.Vibrator;
-import android.text.format.DateFormat;
 import android.text.format.DateUtils;
-import android.text.format.Time;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,14 +29,13 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ViewAnimator;
 
+import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.R;
 import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
@@ -105,8 +98,7 @@ public class DatePickerDialog extends DialogFragment implements
     private int mMinYear = DEFAULT_START_YEAR;
     private int mMaxYear = DEFAULT_END_YEAR;
 
-    private Vibrator mVibrator;
-    private long mLastVibrate;
+    private HapticFeedbackController mHapticFeedbackController;
 
     private boolean mDelayAnimation = true;
 
@@ -171,7 +163,6 @@ public class DatePickerDialog extends DialogFragment implements
         final Activity activity = getActivity();
         activity.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        mVibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
         if (savedInstanceState != null) {
             mCalendar.set(Calendar.YEAR, savedInstanceState.getInt(KEY_SELECTED_YEAR));
             mCalendar.set(Calendar.MONTH, savedInstanceState.getInt(KEY_SELECTED_MONTH));
@@ -274,7 +265,21 @@ public class DatePickerDialog extends DialogFragment implements
                 mYearPickerView.postSetSelectionFromTop(listPosition, listPositionOffset);
             }
         }
+
+        mHapticFeedbackController = new HapticFeedbackController(activity);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mHapticFeedbackController.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mHapticFeedbackController.stop();
     }
 
     private void setCurrentView(final int viewIndex) {
@@ -453,19 +458,8 @@ public class DatePickerDialog extends DialogFragment implements
         mListeners.remove(listener);
     }
 
-    /**
-     * Try to vibrate. To prevent this becoming a single continuous vibration, nothing will
-     * happen if we have vibrated very recently.
-     */
     @Override
     public void tryVibrate() {
-        if (mVibrator != null) {
-            long now = SystemClock.uptimeMillis();
-            // We want to try to vibrate each individual tick discretely.
-            if (now - mLastVibrate >= 125) {
-                mVibrator.vibrate(5);
-                mLastVibrate = now;
-            }
-        }
+        mHapticFeedbackController.tryVibrate();
     }
 }
