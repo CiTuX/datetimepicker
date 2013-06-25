@@ -330,10 +330,14 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             if (mAllowAutoAdvance && autoAdvance) {
                 setCurrentItemShowing(MINUTE_INDEX, true, true, false);
                 announcement += ". " + mSelectMinutes;
+            } else {
+                mTimePicker.setContentDescription(mHourPickerDescription + ": " + newValue);
             }
+
             Utils.tryAccessibilityAnnounce(mTimePicker, announcement);
         } else if (pickerIndex == MINUTE_INDEX){
             setMinute(newValue);
+            mTimePicker.setContentDescription(mMinutePickerDescription + ": " + newValue);
         } else if (pickerIndex == AMPM_INDEX) {
             updateAmPmDisplay(newValue);
         } else if (pickerIndex == ENABLE_PICKER_INDEX) {
@@ -385,14 +389,14 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             if (!mIs24HourMode) {
                 hours = hours % 12;
             }
-            mTimePicker.setContentDescription(mHourPickerDescription+": "+hours);
+            mTimePicker.setContentDescription(mHourPickerDescription + ": " + hours);
             if (announce) {
                 Utils.tryAccessibilityAnnounce(mTimePicker, mSelectHours);
             }
             labelToAnimate = mHourView;
         } else {
             int minutes = mTimePicker.getMinutes();
-            mTimePicker.setContentDescription(mMinutePickerDescription+": "+minutes);
+            mTimePicker.setContentDescription(mMinutePickerDescription + ": " + minutes);
             if (announce) {
                 Utils.tryAccessibilityAnnounce(mTimePicker, mSelectMinutes);
             }
