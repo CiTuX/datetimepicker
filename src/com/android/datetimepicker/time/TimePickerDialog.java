@@ -34,6 +34,7 @@ import android.view.Window;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.R;
 import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.time.RadialPickerLayout.OnValueSelectedListener;
@@ -68,6 +69,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     private static final int PULSE_ANIMATOR_DELAY = 300;
 
     private OnTimeSetListener mCallback;
+
+    private HapticFeedbackController mHapticFeedbackController;
 
     private TextView mDoneButton;
     private TextView mHourView;
@@ -199,7 +202,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mTimePicker = (RadialPickerLayout) view.findViewById(R.id.time_picker);
         mTimePicker.setOnValueSelectedListener(this);
         mTimePicker.setOnKeyListener(keyboardListener);
-        mTimePicker.initialize(getActivity(), mInitialHourOfDay, mInitialMinute, mIs24HourMode);
+        mTimePicker.initialize(getActivity(), this, mInitialHourOfDay, mInitialMinute,
+                mIs24HourMode);
         int currentItemShowing = HOUR_INDEX;
         if (savedInstanceState != null &&
                 savedInstanceState.containsKey(KEY_CURRENT_ITEM_SHOWING)) {
@@ -208,18 +212,19 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         setCurrentItemShowing(currentItemShowing, false, true, true);
         mTimePicker.invalidate();
 
+        mHapticFeedbackController = new HapticFeedbackController(getActivity());
         mHourView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 setCurrentItemShowing(HOUR_INDEX, true, false, true);
-                mTimePicker.tryVibrate();
+                tryVibrate();
             }
         });
         mMinuteView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 setCurrentItemShowing(MINUTE_INDEX, true, false, true);
-                mTimePicker.tryVibrate();
+                tryVibrate();
             }
         });
 
@@ -230,7 +235,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 if (mInKbMode && isTypedTimeFullyLegal()) {
                     finishKbMode(false);
                 } else {
-                    mTimePicker.tryVibrate();
+                    tryVibrate();
                 }
                 if (mCallback != null) {
                     mCallback.onTimeSet(mTimePicker,
@@ -257,7 +262,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             mAmPmHitspace.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mTimePicker.tryVibrate();
+                    tryVibrate();
                     int amOrPm = mTimePicker.getIsCurrentlyAmOrPm();
                     if (amOrPm == AM) {
                         amOrPm = PM;
@@ -289,6 +294,22 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         }
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mHapticFeedbackController.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mHapticFeedbackController.stop();
+    }
+
+    public void tryVibrate() {
+        mHapticFeedbackController.tryVibrate();
     }
 
     private void updateAmPmDisplay(int amOrPm) {
