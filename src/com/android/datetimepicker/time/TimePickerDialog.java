@@ -199,11 +199,14 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mAmText = amPmTexts[0];
         mPmText = amPmTexts[1];
 
+        mHapticFeedbackController = new HapticFeedbackController(getActivity());
+
         mTimePicker = (RadialPickerLayout) view.findViewById(R.id.time_picker);
         mTimePicker.setOnValueSelectedListener(this);
         mTimePicker.setOnKeyListener(keyboardListener);
-        mTimePicker.initialize(getActivity(), this, mInitialHourOfDay, mInitialMinute,
-                mIs24HourMode);
+        mTimePicker.initialize(getActivity(), mHapticFeedbackController, mInitialHourOfDay,
+            mInitialMinute, mIs24HourMode);
+
         int currentItemShowing = HOUR_INDEX;
         if (savedInstanceState != null &&
                 savedInstanceState.containsKey(KEY_CURRENT_ITEM_SHOWING)) {
@@ -212,7 +215,6 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         setCurrentItemShowing(currentItemShowing, false, true, true);
         mTimePicker.invalidate();
 
-        mHapticFeedbackController = new HapticFeedbackController(getActivity());
         mHourView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
