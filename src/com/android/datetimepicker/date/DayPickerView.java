@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -87,25 +88,35 @@ public class DayPickerView extends ListView implements OnScrollListener, OnDateC
     // used for tracking what state listview is in
     protected int mCurrentScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
-    private final DatePickerController mController;
+    private DatePickerController mController;
     private boolean mPerformingScroll;
+
+    public DayPickerView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
 
     public DayPickerView(Context context, DatePickerController controller) {
         super(context);
-        mHandler = new Handler();
+        init(context);
+        setController(controller);
+    }
+
+    public void setController(DatePickerController controller) {
         mController = controller;
         mController.registerOnDateChangedListener(this);
-        setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        setDrawSelectorOnTop(false);
-        init(context);
+        setUpAdapter();
+        setAdapter(mAdapter);
         onDateChanged();
     }
 
     public void init(Context context) {
+        mHandler = new Handler();
+        setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        setDrawSelectorOnTop(false);
+
         mContext = context;
         setUpListView();
-        setUpAdapter();
-        setAdapter(mAdapter);
     }
 
     public void onChange() {

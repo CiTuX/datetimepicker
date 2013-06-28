@@ -22,7 +22,7 @@ import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
 /**
  * Controller class to communicate among the various components of the date picker dialog.
  */
-interface DatePickerController {
+public interface DatePickerController {
 
     void onYearSelected(int year);
 

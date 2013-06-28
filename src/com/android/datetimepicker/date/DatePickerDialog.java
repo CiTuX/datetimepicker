@@ -126,7 +126,7 @@ public class DatePickerDialog extends DialogFragment implements
     /**
      * The callback used to notify other date picker components of a change in selected date.
      */
-    interface OnDateChangedListener {
+    public interface OnDateChangedListener {
 
         public void onDateChanged();
     }

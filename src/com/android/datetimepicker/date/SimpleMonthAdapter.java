@@ -18,6 +18,7 @@ package com.android.datetimepicker.date;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,6 @@ import android.widget.AbsListView.LayoutParams;
 import android.widget.BaseAdapter;
 
 import com.android.datetimepicker.date.SimpleMonthView.OnDayClickListener;
-import com.android.datetimepicker.R;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -50,6 +50,7 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnDayClickListene
      */
     public static class CalendarDay {
         private Calendar calendar;
+        private Time time;
         int year;
         int month;
         int day;
@@ -82,6 +83,14 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnDayClickListene
             this.year = year;
             this.month = month;
             this.day = day;
+        }
+
+        public void setJulianDay(int julianDay) {
+            if (time == null) {
+                time = new Time();
+            }
+            time.setJulianDay(julianDay);
+            setTime(time.toMillis(false));
         }
 
         private void setTime(long timeInMillis) {
