@@ -148,6 +148,11 @@ public class SimpleMonthAdapter extends BaseAdapter implements OnDayClickListene
         return position;
     }
 
+    @Override
+    public boolean hasStableIds() {
+        return true;
+    }
+
     @SuppressLint("NewApi")
     @SuppressWarnings("unchecked")
     @Override

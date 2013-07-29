@@ -18,6 +18,7 @@ package com.android.datetimepicker.date;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -382,8 +383,10 @@ public class DayPickerView extends ListView implements OnScrollListener, OnDateC
             if (child instanceof SimpleMonthView) {
                 final CalendarDay focus = ((SimpleMonthView) child).getAccessibilityFocus();
                 if (focus != null) {
-                    // Clear focus to avoid ListView bug in Jelly Bean MR1.
-                    ((SimpleMonthView) child).clearAccessibilityFocus();
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        // Clear focus to avoid ListView bug in Jelly Bean MR1.
+                        ((SimpleMonthView) child).clearAccessibilityFocus();
+                    }
                     return focus;
                 }
             }
