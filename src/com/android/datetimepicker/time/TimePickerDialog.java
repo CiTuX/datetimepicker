@@ -20,6 +20,8 @@ import android.animation.ObjectAnimator;
 import android.app.ActionBar.LayoutParams;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
@@ -55,6 +57,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     private static final String KEY_CURRENT_ITEM_SHOWING = "current_item_showing";
     private static final String KEY_IN_KB_MODE = "in_kb_mode";
     private static final String KEY_TYPED_TIMES = "typed_times";
+    private static final String KEY_DARK_THEME = "dark_theme";
 
     public static final int HOUR_INDEX = 0;
     public static final int MINUTE_INDEX = 1;
@@ -81,8 +84,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     private View mAmPmHitspace;
     private RadialPickerLayout mTimePicker;
 
-    private int mBlue;
-    private int mBlack;
+    private int mSelectedColor;
+    private int mUnselectedColor;
     private String mAmText;
     private String mPmText;
 
@@ -90,6 +93,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     private int mInitialHourOfDay;
     private int mInitialMinute;
     private boolean mIs24HourMode;
+    private boolean mThemeDark;
 
     // For hardware IME input.
     private char mPlaceholderText;
@@ -145,6 +149,18 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mInitialMinute = minute;
         mIs24HourMode = is24HourMode;
         mInKbMode = false;
+        mThemeDark = false;
+    }
+
+    /**
+     * Set a dark or light theme. NOTE: this will only take effect for the next onCreateView.
+     */
+    public void setThemeDark(boolean dark) {
+        mThemeDark = dark;
+    }
+
+    public boolean isThemeDark() {
+        return mThemeDark;
     }
 
     public void setOnTimeSetListener(OnTimeSetListener callback) {
@@ -167,6 +183,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             mInitialMinute = savedInstanceState.getInt(KEY_MINUTE);
             mIs24HourMode = savedInstanceState.getBoolean(KEY_IS_24_HOUR_VIEW);
             mInKbMode = savedInstanceState.getBoolean(KEY_IN_KB_MODE);
+            mThemeDark = savedInstanceState.getBoolean(KEY_DARK_THEME);
         }
     }
 
@@ -184,8 +201,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mSelectHours = res.getString(R.string.select_hours);
         mMinutePickerDescription = res.getString(R.string.minute_picker_description);
         mSelectMinutes = res.getString(R.string.select_minutes);
-        mBlue = res.getColor(R.color.blue);
-        mBlack = res.getColor(R.color.numbers_text_color);
+        mSelectedColor = res.getColor(mThemeDark? R.color.red : R.color.blue);
+        mUnselectedColor = res.getColor(mThemeDark? R.color.white : R.color.numbers_text_color);
 
         mHourView = (TextView) view.findViewById(R.id.hours);
         mHourView.setOnKeyListener(keyboardListener);
@@ -295,6 +312,31 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             mTypedTimes = new ArrayList<Integer>();
         }
 
+        // Set the theme at the end so that the initialize()s above don't counteract the theme.
+        mTimePicker.setTheme(getActivity().getApplicationContext(), mThemeDark);
+        // Prepare some colors to use.
+        int white = res.getColor(R.color.white);
+        int circleBackground = res.getColor(R.color.circle_background);
+        int line = res.getColor(R.color.line_background);
+        int timeDisplay = res.getColor(R.color.numbers_text_color);
+        ColorStateList doneTextColor = res.getColorStateList(R.color.done_text_color);
+        int doneBackground = R.drawable.done_background_color;
+
+        int darkGray = res.getColor(R.color.dark_gray);
+        int lightGray = res.getColor(R.color.light_gray);
+        int darkLine = res.getColor(R.color.line_dark);
+        ColorStateList darkDoneTextColor = res.getColorStateList(R.color.done_text_color_dark);
+        int darkDoneBackground = R.drawable.done_background_color_dark;
+
+        // Set the colors for each view based on the theme.
+        view.findViewById(R.id.time_display_background).setBackgroundColor(mThemeDark? darkGray : white);
+        view.findViewById(R.id.time_display).setBackgroundColor(mThemeDark? darkGray : white);
+        ((TextView) view.findViewById(R.id.separator)).setTextColor(mThemeDark? white : timeDisplay);
+        ((TextView) view.findViewById(R.id.ampm_label)).setTextColor(mThemeDark? white : timeDisplay);
+        view.findViewById(R.id.line).setBackgroundColor(mThemeDark? darkLine : line);
+        mDoneButton.setTextColor(mThemeDark? darkDoneTextColor : doneTextColor);
+        mTimePicker.setBackgroundColor(mThemeDark? lightGray : circleBackground);
+        mDoneButton.setBackgroundResource(mThemeDark? darkDoneBackground : doneBackground);
         return view;
     }
 
@@ -339,6 +381,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             if (mInKbMode) {
                 outState.putIntegerArrayList(KEY_TYPED_TIMES, mTypedTimes);
             }
+            outState.putBoolean(KEY_DARK_THEME, mThemeDark);
         }
     }
 
@@ -426,8 +469,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             labelToAnimate = mMinuteView;
         }
 
-        int hourColor = (index == HOUR_INDEX)? mBlue : mBlack;
-        int minuteColor = (index == MINUTE_INDEX)? mBlue : mBlack;
+        int hourColor = (index == HOUR_INDEX)? mSelectedColor : mUnselectedColor;
+        int minuteColor = (index == MINUTE_INDEX)? mSelectedColor : mUnselectedColor;
         mHourView.setTextColor(hourColor);
         mMinuteView.setTextColor(minuteColor);
 
@@ -643,10 +686,10 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 String.format(minuteFormat, values[1]).replace(' ', mPlaceholderText);
             mHourView.setText(hourStr);
             mHourSpaceView.setText(hourStr);
-            mHourView.setTextColor(mBlack);
+            mHourView.setTextColor(mUnselectedColor);
             mMinuteView.setText(minuteStr);
             mMinuteSpaceView.setText(minuteStr);
-            mMinuteView.setTextColor(mBlack);
+            mMinuteView.setTextColor(mUnselectedColor);
             if (!mIs24HourMode) {
                 updateAmPmDisplay(values[2]);
             }

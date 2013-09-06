@@ -41,6 +41,11 @@ import android.widget.FrameLayout;
 import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.R;
 
+/**
+ * The primary layout to hold the circular picker, and the am/pm buttons. This view well measure
+ * itself to end up as a square. It also handles touches to be passed in to views that need to know
+ * when they'd been touched.
+ */
 public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
     private static final String TAG = "RadialPickerLayout";
 
@@ -213,6 +218,15 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
 
         mTimeInitialized = true;
     }
+
+    /* package */ void setTheme(Context context, boolean themeDark) {
+        mCircleView.setTheme(context, themeDark);
+        mAmPmCirclesView.setTheme(context, themeDark);
+        mHourRadialTextsView.setTheme(context, themeDark);
+        mMinuteRadialTextsView.setTheme(context, themeDark);
+        mHourRadialSelectorView.setTheme(context, themeDark);
+        mMinuteRadialSelectorView.setTheme(context, themeDark);
+   }
 
     public void setTime(int hours, int minutes) {
         setItem(HOUR_INDEX, hours);

@@ -34,6 +34,13 @@ public class Utils {
     public static final int MONDAY_BEFORE_JULIAN_EPOCH = Time.EPOCH_JULIAN_DAY - 3;
     public static final int PULSE_ANIMATOR_DURATION = 544;
 
+    // Alpha level for time picker selection.
+    public static final int SELECTED_ALPHA = 51;
+    public static final int SELECTED_ALPHA_THEME_DARK = 102;
+    // Alpha level for fully opaque.
+    public static final int FULL_ALPHA = 255;
+
+
     static final String SHARED_PREFS_NAME = "com.android.calendar_preferences";
 
     public static boolean isJellybeanOrLater() {
