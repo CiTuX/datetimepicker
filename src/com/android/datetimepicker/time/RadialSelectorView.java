@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.android.datetimepicker.R;
+import com.android.datetimepicker.Utils;
 
 /**
  * View to show what number is selected. This will draw a blue circle over the number, with a blue
@@ -36,6 +37,12 @@ import com.android.datetimepicker.R;
  */
 public class RadialSelectorView extends View {
     private static final String TAG = "RadialSelectorView";
+
+    // Alpha level for selected circle.
+    private static final int SELECTED_ALPHA = Utils.SELECTED_ALPHA;
+    private static final int SELECTED_ALPHA_THEME_DARK = Utils.SELECTED_ALPHA_THEME_DARK;
+    // Alpha level for the line.
+    private static final int FULL_ALPHA = Utils.FULL_ALPHA;
 
     private final Paint mPaint = new Paint();
 
@@ -51,6 +58,7 @@ public class RadialSelectorView extends View {
     private float mAnimationRadiusMultiplier;
     private boolean mIs24HourMode;
     private boolean mHasInnerCircle;
+    private int mSelectionAlpha;
 
     private int mXCenter;
     private int mYCenter;
@@ -95,6 +103,7 @@ public class RadialSelectorView extends View {
         int blue = res.getColor(R.color.blue);
         mPaint.setColor(blue);
         mPaint.setAntiAlias(true);
+        mSelectionAlpha = SELECTED_ALPHA;
 
         // Calculate values for the circle radius size.
         mIs24HourMode = is24HourMode;
@@ -130,6 +139,19 @@ public class RadialSelectorView extends View {
 
         setSelection(selectionDegrees, isInnerCircle, false);
         mIsInitialized = true;
+    }
+
+    /* package */ void setTheme(Context context, boolean themeDark) {
+        Resources res = context.getResources();
+        int color;
+        if (themeDark) {
+            color = res.getColor(R.color.red);
+            mSelectionAlpha = SELECTED_ALPHA_THEME_DARK;
+        } else {
+            color = res.getColor(R.color.blue);
+            mSelectionAlpha = SELECTED_ALPHA;
+        }
+        mPaint.setColor(color);
     }
 
     /**
@@ -277,12 +299,12 @@ public class RadialSelectorView extends View {
         int pointY = mYCenter - (int) (mLineLength * Math.cos(mSelectionRadians));
 
         // Draw the selection circle.
-        mPaint.setAlpha(51);
+        mPaint.setAlpha(mSelectionAlpha);
         canvas.drawCircle(pointX, pointY, mSelectionRadius, mPaint);
 
         if (mForceDrawDot | mSelectionDegrees % 30 != 0) {
             // We're not on a direct tick (or we've been told to draw the dot anyway).
-            mPaint.setAlpha(255);
+            mPaint.setAlpha(FULL_ALPHA);
             canvas.drawCircle(pointX, pointY, (mSelectionRadius * 2 / 7), mPaint);
         } else {
             // We're not drawing the dot, so shorten the line to only go as far as the edge of the

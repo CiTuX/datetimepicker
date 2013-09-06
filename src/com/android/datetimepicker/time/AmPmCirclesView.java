@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.android.datetimepicker.R;
+import com.android.datetimepicker.Utils;
 
 import java.text.DateFormatSymbols;
 
@@ -35,15 +36,15 @@ import java.text.DateFormatSymbols;
 public class AmPmCirclesView extends View {
     private static final String TAG = "AmPmCirclesView";
 
-    // Alpha level of blue color for selected circle.
-    private static final int SELECTED_ALPHA = 51;
-    // Alpha level of blue color for pressed circle.
-    private static final int PRESSED_ALPHA = 175;
+    // Alpha level for selected circle.
+    private static final int SELECTED_ALPHA = Utils.SELECTED_ALPHA;
+    private static final int SELECTED_ALPHA_THEME_DARK = Utils.SELECTED_ALPHA_THEME_DARK;
 
     private final Paint mPaint = new Paint();
-    private int mWhite;
+    private int mSelectedAlpha;
+    private int mUnselectedColor;
     private int mAmPmTextColor;
-    private int mBlue;
+    private int mSelectedColor;
     private float mCircleRadiusMultiplier;
     private float mAmPmCircleRadiusMultiplier;
     private String mAmText;
@@ -73,9 +74,10 @@ public class AmPmCirclesView extends View {
         }
 
         Resources res = context.getResources();
-        mWhite = res.getColor(R.color.white);
+        mUnselectedColor = res.getColor(R.color.white);
+        mSelectedColor = res.getColor(R.color.blue);
         mAmPmTextColor = res.getColor(R.color.ampm_text_color);
-        mBlue = res.getColor(R.color.blue);
+        mSelectedAlpha = SELECTED_ALPHA;
         String typefaceFamily = res.getString(R.string.sans_serif);
         Typeface tf = Typeface.create(typefaceFamily, Typeface.NORMAL);
         mPaint.setTypeface(tf);
@@ -94,6 +96,21 @@ public class AmPmCirclesView extends View {
         mAmOrPmPressed = -1;
 
         mIsInitialized = true;
+    }
+
+    /* package */ void setTheme(Context context, boolean themeDark) {
+        Resources res = context.getResources();
+        if (themeDark) {
+            mUnselectedColor = res.getColor(R.color.dark_gray);
+            mSelectedColor = res.getColor(R.color.red);
+            mAmPmTextColor = res.getColor(R.color.white);
+            mSelectedAlpha = SELECTED_ALPHA_THEME_DARK;
+        } else {
+            mUnselectedColor = res.getColor(R.color.white);
+            mSelectedColor = res.getColor(R.color.blue);
+            mAmPmTextColor = res.getColor(R.color.ampm_text_color);
+            mSelectedAlpha = SELECTED_ALPHA;
+        }
     }
 
     public void setAmOrPm(int amOrPm) {
@@ -158,23 +175,23 @@ public class AmPmCirclesView extends View {
 
         // We'll need to draw either a lighter blue (for selection), a darker blue (for touching)
         // or white (for not selected).
-        int amColor = mWhite;
+        int amColor = mUnselectedColor;
         int amAlpha = 255;
-        int pmColor = mWhite;
+        int pmColor = mUnselectedColor;
         int pmAlpha = 255;
         if (mAmOrPm == AM) {
-            amColor = mBlue;
-            amAlpha = SELECTED_ALPHA;
+            amColor = mSelectedColor;
+            amAlpha = mSelectedAlpha;
         } else if (mAmOrPm == PM) {
-            pmColor = mBlue;
-            pmAlpha = SELECTED_ALPHA;
+            pmColor = mSelectedColor;
+            pmAlpha = mSelectedAlpha;
         }
         if (mAmOrPmPressed == AM) {
-            amColor = mBlue;
-            amAlpha = PRESSED_ALPHA;
+            amColor = mSelectedColor;
+            amAlpha = mSelectedAlpha;
         } else if (mAmOrPmPressed == PM) {
-            pmColor = mBlue;
-            pmAlpha = PRESSED_ALPHA;
+            pmColor = mSelectedColor;
+            pmAlpha = mSelectedAlpha;
         }
 
         // Draw the two circles.
