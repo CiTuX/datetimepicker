@@ -27,6 +27,7 @@
     <color name="transparent_black">#7f000000</color>
     <color name="blue">#33b5e5</color>
     <color name="blue_focused">#c1e8f7</color>
+    <color name="neutral_pressed">#33999999</color>
     <color name="darker_blue">#0099cc</color>
     <color name="date_picker_text_normal">#ff999999</color>
 
