@@ -22,7 +22,7 @@
     <string name="minute_picker_description" msgid="6024811202872705251">"ໂຕໝຸນປັບນາທີ"</string>
     <string name="select_hours" msgid="7651068754188418859">"ເລືອກ​ຊົ່ວ​ໂມງ"</string>
     <string name="select_minutes" msgid="8327182090226828481">"ເລືອກນາ​ທີ"</string>
-    <string name="day_picker_description" msgid="3968620852217927702">"ຕາຕະລາງວັນທີເດືອນປີ"</string>
+    <string name="day_picker_description" msgid="3968620852217927702">"ຕາຕະລາງວັນທີ"</string>
     <string name="year_picker_description" msgid="6963340404644587098">"ລາຍການປີ"</string>
     <string name="select_day" msgid="3973338219107019769">"ເລືອກເດືອນ ແລະ ວັນ"</string>
     <string name="select_year" msgid="2603330600102539372">"ເລືອກ​ປີ"</string>
