@@ -38,7 +38,7 @@ import android.widget.TextView;
 import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.R;
 import com.android.datetimepicker.Utils;
-import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
+import com.android.datetimepicker.date.MonthAdapter.CalendarDay;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -219,7 +219,7 @@ public class DatePickerDialog extends DialogFragment implements
         }
 
         final Activity activity = getActivity();
-        mDayPickerView = new DayPickerView(activity, this);
+        mDayPickerView = new SimpleDayPickerView(activity, this);
         mYearPickerView = new YearPickerView(activity, this);
 
         Resources res = getResources();
