@@ -17,7 +17,7 @@
 package com.android.datetimepicker.date;
 
 import com.android.datetimepicker.date.DatePickerDialog.OnDateChangedListener;
-import com.android.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
+import com.android.datetimepicker.date.MonthAdapter.CalendarDay;
 
 /**
  * Controller class to communicate among the various components of the date picker dialog.
