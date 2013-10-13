@@ -21,7 +21,6 @@ import android.app.ActionBar.LayoutParams;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
@@ -696,7 +695,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         }
     }
 
-    private int getValFromKeyCode(int keyCode) {
+    private static int getValFromKeyCode(int keyCode) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_0:
                 return 0;
