@@ -437,7 +437,7 @@ public abstract class DayPickerView extends ListView implements OnScrollListener
         event.setItemCount(-1);
    }
 
-    private String getMonthAndYearString(CalendarDay day) {
+    private static String getMonthAndYearString(CalendarDay day) {
         Calendar cal = Calendar.getInstance();
         cal.set(day.year, day.month, day.day);
 

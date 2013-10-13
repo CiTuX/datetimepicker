@@ -22,9 +22,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
-import android.text.format.DateUtils;
 import android.util.AttributeSet;
-import android.view.accessibility.AccessibilityEvent;
 import android.widget.TextView;
 
 import com.android.datetimepicker.R;

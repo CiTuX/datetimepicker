@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.AttributeSet;
@@ -397,7 +396,7 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
      * strictly lower, and 0 to snap to the closer one.
      * @return output degrees, will be a multiple of 30
      */
-    private int snapOnly30s(int degrees, int forceHigherOrLower) {
+    private static int snapOnly30s(int degrees, int forceHigherOrLower) {
         int stepSize = HOUR_VALUE_TO_DEGREES_STEP_SIZE;
         int floor = (degrees / stepSize) * stepSize;
         int ceiling = floor + stepSize;
@@ -568,8 +567,6 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
         int value;
         final Boolean[] isInnerCircle = new Boolean[1];
         isInnerCircle[0] = false;
-
-        long millis = SystemClock.uptimeMillis();
 
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
