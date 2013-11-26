@@ -372,6 +372,10 @@ public abstract class MonthView extends View {
         mTouchHelper.invalidateRoot();
     }
 
+    public void setSelectedDay(int day) {
+        mSelectedDay = day;
+    }
+
     public void reuse() {
         mNumRows = DEFAULT_NUM_ROWS;
         requestLayout();
@@ -402,6 +406,14 @@ public abstract class MonthView extends View {
 
         // Invalidate cached accessibility information.
         mTouchHelper.invalidateRoot();
+    }
+
+    public int getMonth() {
+        return mMonth;
+    }
+
+    public int getYear() {
+        return mYear;
     }
 
     private String getMonthAndYearString() {

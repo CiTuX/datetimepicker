@@ -101,6 +101,18 @@ public abstract class MonthAdapter extends BaseAdapter implements OnDayClickList
             year = calendar.get(Calendar.YEAR);
             day = calendar.get(Calendar.DAY_OF_MONTH);
         }
+
+        public int getYear() {
+            return year;
+        }
+
+        public int getMonth() {
+            return month;
+        }
+
+        public int getDay() {
+            return day;
+        }
     }
 
     public MonthAdapter(Context context,
