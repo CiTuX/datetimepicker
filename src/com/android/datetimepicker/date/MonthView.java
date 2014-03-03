@@ -212,13 +212,17 @@ public abstract class MonthView extends View {
                 - MONTH_HEADER_SIZE) / MAX_NUM_ROWS;
 
         // Set up accessibility components.
-        mTouchHelper = new MonthViewTouchHelper(this);
+        mTouchHelper = getMonthViewTouchHelper();
         ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         mLockAccessibilityDelegate = true;
 
         // Sets up any standard paints that will be used
         initView();
+    }
+
+    protected MonthViewTouchHelper getMonthViewTouchHelper() {
+        return new MonthViewTouchHelper(this);
     }
 
     @Override
@@ -577,7 +581,7 @@ public abstract class MonthView extends View {
      * Provides a virtual view hierarchy for interfacing with an accessibility
      * service.
      */
-    private class MonthViewTouchHelper extends ExploreByTouchHelper {
+    protected class MonthViewTouchHelper extends ExploreByTouchHelper {
         private static final String DATE_FORMAT = "dd MMMM yyyy";
 
         private final Rect mTempRect = new Rect();
@@ -678,7 +682,7 @@ public abstract class MonthView extends View {
          * @param day The day to generate a description for
          * @return A description of the time object
          */
-        private CharSequence getItemDescription(int day) {
+        protected CharSequence getItemDescription(int day) {
             mTempCalendar.set(mYear, mMonth, day);
             final CharSequence date = DateFormat.format(DATE_FORMAT,
                     mTempCalendar.getTimeInMillis());
