@@ -167,7 +167,7 @@ public abstract class MonthView extends View {
     protected int mSelectedRight = -1;
 
     private final Calendar mCalendar;
-    private final Calendar mDayLabelCalendar;
+    protected final Calendar mDayLabelCalendar;
     private final MonthViewTouchHelper mTouchHelper;
 
     private int mNumRows = DEFAULT_NUM_ROWS;
@@ -429,13 +429,13 @@ public abstract class MonthView extends View {
                 Time.getCurrentTimezone()).toString();
     }
 
-    private void drawMonthTitle(Canvas canvas) {
+    protected void drawMonthTitle(Canvas canvas) {
         int x = (mWidth + 2 * mPadding) / 2;
         int y = (MONTH_HEADER_SIZE - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
         canvas.drawText(getMonthAndYearString(), x, y, mMonthTitlePaint);
     }
 
-    private void drawMonthDayLabels(Canvas canvas) {
+    protected void drawMonthDayLabels(Canvas canvas) {
         int y = MONTH_HEADER_SIZE - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
         int dayWidthHalf = (mWidth - mPadding * 2) / (mNumDays * 2);
 
@@ -497,7 +497,7 @@ public abstract class MonthView extends View {
     public abstract void drawMonthDay(Canvas canvas, int year, int month, int day,
             int x, int y, int startX, int stopX, int startY, int stopY);
 
-    private int findDayOffset() {
+    protected int findDayOffset() {
         return (mDayOfWeekStart < mWeekStart ? (mDayOfWeekStart + mNumDays) : mDayOfWeekStart)
                 - mWeekStart;
     }
@@ -660,7 +660,7 @@ public abstract class MonthView extends View {
          * @param day The day to calculate bounds for
          * @param rect The rectangle in which to store the bounds
          */
-        private void getItemBounds(int day, Rect rect) {
+        protected void getItemBounds(int day, Rect rect) {
             final int offsetX = mPadding;
             final int offsetY = MONTH_HEADER_SIZE;
             final int cellHeight = mRowHeight;
