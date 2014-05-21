@@ -19,6 +19,8 @@ package com.android.datetimepicker.date;
 import com.android.datetimepicker.date.DatePickerDialog.OnDateChangedListener;
 import com.android.datetimepicker.date.MonthAdapter.CalendarDay;
 
+import java.util.Calendar;
+
 /**
  * Controller class to communicate among the various components of the date picker dialog.
  */
@@ -39,6 +41,10 @@ public interface DatePickerController {
     int getMinYear();
 
     int getMaxYear();
+
+    Calendar getMinDate();
+
+    Calendar getMaxDate();
 
     void tryVibrate();
 }
