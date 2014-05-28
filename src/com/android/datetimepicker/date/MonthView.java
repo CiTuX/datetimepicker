@@ -120,6 +120,8 @@ public abstract class MonthView extends View {
     // used for scaling to the device density
     protected static float mScale = 0;
 
+    protected final DatePickerController mController;
+
     // affects the padding on the sides of this view
     protected int mPadding = 0;
 
@@ -179,11 +181,18 @@ public abstract class MonthView extends View {
 
     protected int mDayTextColor;
     protected int mTodayNumberColor;
+    protected int mDisabledDayTextColor;
     protected int mMonthTitleColor;
     protected int mMonthTitleBGColor;
 
     public MonthView(Context context) {
+        this(context, null);
+    }
+
+    public MonthView(Context context, DatePickerController controller) {
         super(context);
+
+        mController = controller;
 
         Resources res = context.getResources();
 
@@ -195,6 +204,7 @@ public abstract class MonthView extends View {
 
         mDayTextColor = res.getColor(R.color.date_picker_text_normal);
         mTodayNumberColor = res.getColor(R.color.blue);
+        mDisabledDayTextColor = res.getColor(R.color.date_picker_text_disabled);
         mMonthTitleColor = res.getColor(R.color.white);
         mMonthTitleBGColor = res.getColor(R.color.circle_background);
 
@@ -530,16 +540,89 @@ public abstract class MonthView extends View {
     /**
      * Called when the user clicks on a day. Handles callbacks to the
      * {@link OnDayClickListener} if one is set.
+     * <p/>
+     * If the day is out of the range set by minDate and/or maxDate, this is a no-op.
      *
      * @param day The day that was clicked
      */
     private void onDayClick(int day) {
+        // If the min / max date are set, only process the click if it's a valid selection.
+        if (isOutOfRange(mYear, mMonth, day)) {
+            return;
+        }
+
+
         if (mOnDayClickListener != null) {
             mOnDayClickListener.onDayClick(this, new CalendarDay(mYear, mMonth, day));
         }
 
         // This is a no-op if accessibility is turned off.
         mTouchHelper.sendEventForVirtualView(day, AccessibilityEvent.TYPE_VIEW_CLICKED);
+    }
+
+    /**
+     * @return true if the specified year/month/day are within the range set by minDate and maxDate.
+     * If one or either have not been set, they are considered as Integer.MIN_VALUE and
+     * Integer.MAX_VALUE.
+     */
+    protected boolean isOutOfRange(int year, int month, int day) {
+        if (isBeforeMin(year, month, day)) {
+            return true;
+        } else if (isAfterMax(year, month, day)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isBeforeMin(int year, int month, int day) {
+        Calendar minDate = mController.getMinDate();
+        if (minDate == null) {
+            return false;
+        }
+
+        if (year < minDate.get(Calendar.YEAR)) {
+            return true;
+        } else if (year > minDate.get(Calendar.YEAR)) {
+            return false;
+        }
+
+        if (month < minDate.get(Calendar.MONTH)) {
+            return true;
+        } else if (month > minDate.get(Calendar.MONTH)) {
+            return false;
+        }
+
+        if (day < minDate.get(Calendar.DAY_OF_MONTH)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isAfterMax(int year, int month, int day) {
+        Calendar maxDate = mController.getMaxDate();
+        if (maxDate == null) {
+            return false;
+        }
+
+        if (year > maxDate.get(Calendar.YEAR)) {
+            return true;
+        } else if (year < maxDate.get(Calendar.YEAR)) {
+            return false;
+        }
+
+        if (month > maxDate.get(Calendar.MONTH)) {
+            return true;
+        } else if (month < maxDate.get(Calendar.MONTH)) {
+            return false;
+        }
+
+        if (day > maxDate.get(Calendar.DAY_OF_MONTH)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
