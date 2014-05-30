@@ -576,6 +576,9 @@ public abstract class MonthView extends View {
     }
 
     private boolean isBeforeMin(int year, int month, int day) {
+        if (mController == null) {
+            return false;
+        }
         Calendar minDate = mController.getMinDate();
         if (minDate == null) {
             return false;
@@ -601,6 +604,9 @@ public abstract class MonthView extends View {
     }
 
     private boolean isAfterMax(int year, int month, int day) {
+        if (mController == null) {
+            return false;
+        }
         Calendar maxDate = mController.getMaxDate();
         if (maxDate == null) {
             return false;
