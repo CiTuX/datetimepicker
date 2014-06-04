@@ -123,7 +123,7 @@ public abstract class MonthView extends View {
     protected final DatePickerController mController;
 
     // affects the padding on the sides of this view
-    protected int mPadding = 0;
+    protected int mEdgePadding = 0;
 
     private String mDayOfWeekTypeface;
     private String mMonthTitleTypeface;
@@ -172,7 +172,7 @@ public abstract class MonthView extends View {
     protected final Calendar mDayLabelCalendar;
     private final MonthViewTouchHelper mTouchHelper;
 
-    private int mNumRows = DEFAULT_NUM_ROWS;
+    protected int mNumRows = DEFAULT_NUM_ROWS;
 
     // Optional listener for handling day click actions
     private OnDayClickListener mOnDayClickListener;
@@ -440,18 +440,18 @@ public abstract class MonthView extends View {
     }
 
     protected void drawMonthTitle(Canvas canvas) {
-        int x = (mWidth + 2 * mPadding) / 2;
+        int x = (mWidth + 2 * mEdgePadding) / 2;
         int y = (MONTH_HEADER_SIZE - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
         canvas.drawText(getMonthAndYearString(), x, y, mMonthTitlePaint);
     }
 
     protected void drawMonthDayLabels(Canvas canvas) {
         int y = MONTH_HEADER_SIZE - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
-        int dayWidthHalf = (mWidth - mPadding * 2) / (mNumDays * 2);
+        int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
 
         for (int i = 0; i < mNumDays; i++) {
             int calendarDay = (i + mWeekStart) % mNumDays;
-            int x = (2 * i + 1) * dayWidthHalf + mPadding;
+            int x = (2 * i + 1) * dayWidthHalf + mEdgePadding;
             mDayLabelCalendar.set(Calendar.DAY_OF_WEEK, calendarDay);
             canvas.drawText(mDayLabelCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT,
                     Locale.getDefault()).toUpperCase(Locale.getDefault()), x, y,
@@ -468,10 +468,10 @@ public abstract class MonthView extends View {
     protected void drawMonthNums(Canvas canvas) {
         int y = (((mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2) - DAY_SEPARATOR_WIDTH)
                 + MONTH_HEADER_SIZE;
-        int dayWidthHalf = (mWidth - mPadding * 2) / (mNumDays * 2);
+        int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
         int j = findDayOffset();
         for (int dayNumber = 1; dayNumber <= mNumCells; dayNumber++) {
-            int x = (2 * j + 1) * dayWidthHalf + mPadding;
+            int x = (2 * j + 1) * dayWidthHalf + mEdgePadding;
 
             int yRelativeToDay = (mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2 - DAY_SEPARATOR_WIDTH;
 
@@ -521,13 +521,13 @@ public abstract class MonthView extends View {
      * @return The day number, or -1 if the position wasn't in a day
      */
     public int getDayFromLocation(float x, float y) {
-        int dayStart = mPadding;
-        if (x < dayStart || x > mWidth - mPadding) {
+        int dayStart = mEdgePadding;
+        if (x < dayStart || x > mWidth - mEdgePadding) {
             return -1;
         }
         // Selection is (x - start) / (pixels/day) == (x -s) * day / pixels
         int row = (int) (y - MONTH_HEADER_SIZE) / mRowHeight;
-        int column = (int) ((x - dayStart) * mNumDays / (mWidth - dayStart - mPadding));
+        int column = (int) ((x - dayStart) * mNumDays / (mWidth - dayStart - mEdgePadding));
 
         int day = column - findDayOffset() + 1;
         day += row * mNumDays;
@@ -750,10 +750,10 @@ public abstract class MonthView extends View {
          * @param rect The rectangle in which to store the bounds
          */
         protected void getItemBounds(int day, Rect rect) {
-            final int offsetX = mPadding;
+            final int offsetX = mEdgePadding;
             final int offsetY = MONTH_HEADER_SIZE;
             final int cellHeight = mRowHeight;
-            final int cellWidth = ((mWidth - (2 * mPadding)) / mNumDays);
+            final int cellWidth = ((mWidth - (2 * mEdgePadding)) / mNumDays);
             final int index = ((day - 1) + findDayOffset());
             final int row = (index / mNumDays);
             final int column = (index % mNumDays);
