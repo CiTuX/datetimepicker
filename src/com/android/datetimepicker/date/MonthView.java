@@ -31,6 +31,7 @@ import android.support.v4.widget.ExploreByTouchHelper;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.text.format.Time;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
@@ -120,7 +121,7 @@ public abstract class MonthView extends View {
     // used for scaling to the device density
     protected static float mScale = 0;
 
-    protected final DatePickerController mController;
+    protected DatePickerController mController;
 
     // affects the padding on the sides of this view
     protected int mEdgePadding = 0;
@@ -189,11 +190,8 @@ public abstract class MonthView extends View {
         this(context, null);
     }
 
-    public MonthView(Context context, DatePickerController controller) {
-        super(context);
-
-        mController = controller;
-
+    public MonthView(Context context, AttributeSet attr) {
+        super(context, attr);
         Resources res = context.getResources();
 
         mDayLabelCalendar = Calendar.getInstance();
@@ -219,7 +217,7 @@ public abstract class MonthView extends View {
                 .getDimensionPixelSize(R.dimen.day_number_select_circle_radius);
 
         mRowHeight = (res.getDimensionPixelOffset(R.dimen.date_picker_view_animator_height)
-                - MONTH_HEADER_SIZE) / MAX_NUM_ROWS;
+                - getMonthHeaderSize()) / MAX_NUM_ROWS;
 
         // Set up accessibility components.
         mTouchHelper = getMonthViewTouchHelper();
@@ -229,6 +227,10 @@ public abstract class MonthView extends View {
 
         // Sets up any standard paints that will be used
         initView();
+    }
+
+    public void setDatePickerController(DatePickerController controller) {
+        mController = controller;
     }
 
     protected MonthViewTouchHelper getMonthViewTouchHelper() {
@@ -411,7 +413,7 @@ public abstract class MonthView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), mRowHeight * mNumRows
-                + MONTH_HEADER_SIZE);
+                + getMonthHeaderSize());
     }
 
     @Override
@@ -430,6 +432,13 @@ public abstract class MonthView extends View {
         return mYear;
     }
 
+    /**
+     * A wrapper to the MonthHeaderSize to allow override it in children
+     */
+    protected int getMonthHeaderSize() {
+        return MONTH_HEADER_SIZE;
+    }
+
     private String getMonthAndYearString() {
         int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
                 | DateUtils.FORMAT_NO_MONTH_DAY;
@@ -441,12 +450,12 @@ public abstract class MonthView extends View {
 
     protected void drawMonthTitle(Canvas canvas) {
         int x = (mWidth + 2 * mEdgePadding) / 2;
-        int y = (MONTH_HEADER_SIZE - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
+        int y = (getMonthHeaderSize() - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
         canvas.drawText(getMonthAndYearString(), x, y, mMonthTitlePaint);
     }
 
     protected void drawMonthDayLabels(Canvas canvas) {
-        int y = MONTH_HEADER_SIZE - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
+        int y = getMonthHeaderSize() - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
         int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
 
         for (int i = 0; i < mNumDays; i++) {
@@ -467,7 +476,7 @@ public abstract class MonthView extends View {
      */
     protected void drawMonthNums(Canvas canvas) {
         int y = (((mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2) - DAY_SEPARATOR_WIDTH)
-                + MONTH_HEADER_SIZE;
+                + getMonthHeaderSize();
         int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
         int j = findDayOffset();
         for (int dayNumber = 1; dayNumber <= mNumCells; dayNumber++) {
@@ -526,7 +535,7 @@ public abstract class MonthView extends View {
             return -1;
         }
         // Selection is (x - start) / (pixels/day) == (x -s) * day / pixels
-        int row = (int) (y - MONTH_HEADER_SIZE) / mRowHeight;
+        int row = (int) (y - getMonthHeaderSize()) / mRowHeight;
         int column = (int) ((x - dayStart) * mNumDays / (mWidth - dayStart - mEdgePadding));
 
         int day = column - findDayOffset() + 1;
@@ -751,7 +760,7 @@ public abstract class MonthView extends View {
          */
         protected void getItemBounds(int day, Rect rect) {
             final int offsetX = mEdgePadding;
-            final int offsetY = MONTH_HEADER_SIZE;
+            final int offsetY = getMonthHeaderSize();
             final int cellHeight = mRowHeight;
             final int cellWidth = ((mWidth - (2 * mEdgePadding)) / mNumDays);
             final int index = ((day - 1) + findDayOffset());

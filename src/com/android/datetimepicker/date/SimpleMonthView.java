@@ -23,8 +23,8 @@ import java.util.Calendar;
 
 public class SimpleMonthView extends MonthView {
 
-    public SimpleMonthView(Context context, DatePickerController controller) {
-        super(context, controller);
+    public SimpleMonthView(Context context) {
+        super(context);
     }
 
     @Override
