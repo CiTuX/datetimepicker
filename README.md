@@ -4,6 +4,10 @@ Mirror of https://android.googlesource.com/platform/frameworks/opt/datetimepicke
 
 DatePicker and TimePicker from Google for **Android 4.0+**
 
+## Usage
+
+    compile 'com.github.citux:datetimepicker:0.1.0'
+
 ## License
 
     Copyright 2014 Paul Stöhr
