@@ -176,7 +176,8 @@ public abstract class MonthView extends View {
     protected int mNumRows = DEFAULT_NUM_ROWS;
 
     // Optional listener for handling day click actions
-    private OnDayClickListener mOnDayClickListener;
+    protected OnDayClickListener mOnDayClickListener;
+
     // Whether to prevent setting the accessibility delegate
     private boolean mLockAccessibilityDelegate;
 
@@ -530,6 +531,21 @@ public abstract class MonthView extends View {
      * @return The day number, or -1 if the position wasn't in a day
      */
     public int getDayFromLocation(float x, float y) {
+        final int day = getInternalDayFromLocation(x, y);
+        if (day < 1 || day > mNumCells) {
+            return -1;
+        }
+        return day;
+    }
+
+    /**
+     * Calculates the day that the given x position is in, accounting for week
+     * number.
+     *
+     * @param x The x position of the touch event
+     * @return The day number
+     */
+    protected int getInternalDayFromLocation(float x, float y) {
         int dayStart = mEdgePadding;
         if (x < dayStart || x > mWidth - mEdgePadding) {
             return -1;
@@ -540,9 +556,6 @@ public abstract class MonthView extends View {
 
         int day = column - findDayOffset() + 1;
         day += row * mNumDays;
-        if (day < 1 || day > mNumCells) {
-            return -1;
-        }
         return day;
     }
 
