@@ -478,17 +478,17 @@ public abstract class MonthView extends View {
     protected void drawMonthNums(Canvas canvas) {
         int y = (((mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2) - DAY_SEPARATOR_WIDTH)
                 + getMonthHeaderSize();
-        int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
+        final float dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2.0f);
         int j = findDayOffset();
         for (int dayNumber = 1; dayNumber <= mNumCells; dayNumber++) {
-            int x = (2 * j + 1) * dayWidthHalf + mEdgePadding;
+            final int x = (int)((2 * j + 1) * dayWidthHalf + mEdgePadding);
 
             int yRelativeToDay = (mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2 - DAY_SEPARATOR_WIDTH;
 
-            int startX = x - dayWidthHalf;
-            int stopX = x + dayWidthHalf;
-            int startY = y - yRelativeToDay;
-            int stopY = startY + mRowHeight;
+            final int startX = (int)(x - dayWidthHalf);
+            final int stopX = (int)(x + dayWidthHalf);
+            final int startY = (int)(y - yRelativeToDay);
+            final int stopY = (int)(startY + mRowHeight);
 
             drawMonthDay(canvas, mYear, mMonth, dayNumber, x, y, startX, stopX, startY, stopY);
 
