@@ -31,6 +31,7 @@ import android.support.v4.widget.ExploreByTouchHelper;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.text.format.Time;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
@@ -120,8 +121,10 @@ public abstract class MonthView extends View {
     // used for scaling to the device density
     protected static float mScale = 0;
 
+    protected DatePickerController mController;
+
     // affects the padding on the sides of this view
-    protected int mPadding = 0;
+    protected int mEdgePadding = 0;
 
     private String mDayOfWeekTypeface;
     private String mMonthTitleTypeface;
@@ -170,21 +173,26 @@ public abstract class MonthView extends View {
     protected final Calendar mDayLabelCalendar;
     private final MonthViewTouchHelper mTouchHelper;
 
-    private int mNumRows = DEFAULT_NUM_ROWS;
+    protected int mNumRows = DEFAULT_NUM_ROWS;
 
     // Optional listener for handling day click actions
-    private OnDayClickListener mOnDayClickListener;
+    protected OnDayClickListener mOnDayClickListener;
+
     // Whether to prevent setting the accessibility delegate
     private boolean mLockAccessibilityDelegate;
 
     protected int mDayTextColor;
     protected int mTodayNumberColor;
+    protected int mDisabledDayTextColor;
     protected int mMonthTitleColor;
     protected int mMonthTitleBGColor;
 
     public MonthView(Context context) {
-        super(context);
+        this(context, null);
+    }
 
+    public MonthView(Context context, AttributeSet attr) {
+        super(context, attr);
         Resources res = context.getResources();
 
         mDayLabelCalendar = Calendar.getInstance();
@@ -195,6 +203,7 @@ public abstract class MonthView extends View {
 
         mDayTextColor = res.getColor(R.color.date_picker_text_normal);
         mTodayNumberColor = res.getColor(R.color.blue);
+        mDisabledDayTextColor = res.getColor(R.color.date_picker_text_disabled);
         mMonthTitleColor = res.getColor(R.color.white);
         mMonthTitleBGColor = res.getColor(R.color.circle_background);
 
@@ -209,7 +218,7 @@ public abstract class MonthView extends View {
                 .getDimensionPixelSize(R.dimen.day_number_select_circle_radius);
 
         mRowHeight = (res.getDimensionPixelOffset(R.dimen.date_picker_view_animator_height)
-                - MONTH_HEADER_SIZE) / MAX_NUM_ROWS;
+                - getMonthHeaderSize()) / MAX_NUM_ROWS;
 
         // Set up accessibility components.
         mTouchHelper = getMonthViewTouchHelper();
@@ -219,6 +228,10 @@ public abstract class MonthView extends View {
 
         // Sets up any standard paints that will be used
         initView();
+    }
+
+    public void setDatePickerController(DatePickerController controller) {
+        mController = controller;
     }
 
     protected MonthViewTouchHelper getMonthViewTouchHelper() {
@@ -401,7 +414,7 @@ public abstract class MonthView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), mRowHeight * mNumRows
-                + MONTH_HEADER_SIZE);
+                + getMonthHeaderSize());
     }
 
     @Override
@@ -420,6 +433,13 @@ public abstract class MonthView extends View {
         return mYear;
     }
 
+    /**
+     * A wrapper to the MonthHeaderSize to allow override it in children
+     */
+    protected int getMonthHeaderSize() {
+        return MONTH_HEADER_SIZE;
+    }
+
     private String getMonthAndYearString() {
         int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
                 | DateUtils.FORMAT_NO_MONTH_DAY;
@@ -430,18 +450,18 @@ public abstract class MonthView extends View {
     }
 
     protected void drawMonthTitle(Canvas canvas) {
-        int x = (mWidth + 2 * mPadding) / 2;
-        int y = (MONTH_HEADER_SIZE - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
+        int x = (mWidth + 2 * mEdgePadding) / 2;
+        int y = (getMonthHeaderSize() - MONTH_DAY_LABEL_TEXT_SIZE) / 2 + (MONTH_LABEL_TEXT_SIZE / 3);
         canvas.drawText(getMonthAndYearString(), x, y, mMonthTitlePaint);
     }
 
     protected void drawMonthDayLabels(Canvas canvas) {
-        int y = MONTH_HEADER_SIZE - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
-        int dayWidthHalf = (mWidth - mPadding * 2) / (mNumDays * 2);
+        int y = getMonthHeaderSize() - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
+        int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
 
         for (int i = 0; i < mNumDays; i++) {
             int calendarDay = (i + mWeekStart) % mNumDays;
-            int x = (2 * i + 1) * dayWidthHalf + mPadding;
+            int x = (2 * i + 1) * dayWidthHalf + mEdgePadding;
             mDayLabelCalendar.set(Calendar.DAY_OF_WEEK, calendarDay);
             canvas.drawText(mDayLabelCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT,
                     Locale.getDefault()).toUpperCase(Locale.getDefault()), x, y,
@@ -457,18 +477,18 @@ public abstract class MonthView extends View {
      */
     protected void drawMonthNums(Canvas canvas) {
         int y = (((mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2) - DAY_SEPARATOR_WIDTH)
-                + MONTH_HEADER_SIZE;
-        int dayWidthHalf = (mWidth - mPadding * 2) / (mNumDays * 2);
+                + getMonthHeaderSize();
+        final float dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2.0f);
         int j = findDayOffset();
         for (int dayNumber = 1; dayNumber <= mNumCells; dayNumber++) {
-            int x = (2 * j + 1) * dayWidthHalf + mPadding;
+            final int x = (int)((2 * j + 1) * dayWidthHalf + mEdgePadding);
 
             int yRelativeToDay = (mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2 - DAY_SEPARATOR_WIDTH;
 
-            int startX = x - dayWidthHalf;
-            int stopX = x + dayWidthHalf;
-            int startY = y - yRelativeToDay;
-            int stopY = startY + mRowHeight;
+            final int startX = (int)(x - dayWidthHalf);
+            final int stopX = (int)(x + dayWidthHalf);
+            final int startY = (int)(y - yRelativeToDay);
+            final int stopY = (int)(startY + mRowHeight);
 
             drawMonthDay(canvas, mYear, mMonth, dayNumber, x, y, startX, stopX, startY, stopY);
 
@@ -511,16 +531,7 @@ public abstract class MonthView extends View {
      * @return The day number, or -1 if the position wasn't in a day
      */
     public int getDayFromLocation(float x, float y) {
-        int dayStart = mPadding;
-        if (x < dayStart || x > mWidth - mPadding) {
-            return -1;
-        }
-        // Selection is (x - start) / (pixels/day) == (x -s) * day / pixels
-        int row = (int) (y - MONTH_HEADER_SIZE) / mRowHeight;
-        int column = (int) ((x - dayStart) * mNumDays / (mWidth - dayStart - mPadding));
-
-        int day = column - findDayOffset() + 1;
-        day += row * mNumDays;
+        final int day = getInternalDayFromLocation(x, y);
         if (day < 1 || day > mNumCells) {
             return -1;
         }
@@ -528,18 +539,118 @@ public abstract class MonthView extends View {
     }
 
     /**
+     * Calculates the day that the given x position is in, accounting for week
+     * number.
+     *
+     * @param x The x position of the touch event
+     * @return The day number
+     */
+    protected int getInternalDayFromLocation(float x, float y) {
+        int dayStart = mEdgePadding;
+        if (x < dayStart || x > mWidth - mEdgePadding) {
+            return -1;
+        }
+        // Selection is (x - start) / (pixels/day) == (x -s) * day / pixels
+        int row = (int) (y - getMonthHeaderSize()) / mRowHeight;
+        int column = (int) ((x - dayStart) * mNumDays / (mWidth - dayStart - mEdgePadding));
+
+        int day = column - findDayOffset() + 1;
+        day += row * mNumDays;
+        return day;
+    }
+
+    /**
      * Called when the user clicks on a day. Handles callbacks to the
      * {@link OnDayClickListener} if one is set.
+     * <p/>
+     * If the day is out of the range set by minDate and/or maxDate, this is a no-op.
      *
      * @param day The day that was clicked
      */
     private void onDayClick(int day) {
+        // If the min / max date are set, only process the click if it's a valid selection.
+        if (isOutOfRange(mYear, mMonth, day)) {
+            return;
+        }
+
+
         if (mOnDayClickListener != null) {
             mOnDayClickListener.onDayClick(this, new CalendarDay(mYear, mMonth, day));
         }
 
         // This is a no-op if accessibility is turned off.
         mTouchHelper.sendEventForVirtualView(day, AccessibilityEvent.TYPE_VIEW_CLICKED);
+    }
+
+    /**
+     * @return true if the specified year/month/day are within the range set by minDate and maxDate.
+     * If one or either have not been set, they are considered as Integer.MIN_VALUE and
+     * Integer.MAX_VALUE.
+     */
+    protected boolean isOutOfRange(int year, int month, int day) {
+        if (isBeforeMin(year, month, day)) {
+            return true;
+        } else if (isAfterMax(year, month, day)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isBeforeMin(int year, int month, int day) {
+        if (mController == null) {
+            return false;
+        }
+        Calendar minDate = mController.getMinDate();
+        if (minDate == null) {
+            return false;
+        }
+
+        if (year < minDate.get(Calendar.YEAR)) {
+            return true;
+        } else if (year > minDate.get(Calendar.YEAR)) {
+            return false;
+        }
+
+        if (month < minDate.get(Calendar.MONTH)) {
+            return true;
+        } else if (month > minDate.get(Calendar.MONTH)) {
+            return false;
+        }
+
+        if (day < minDate.get(Calendar.DAY_OF_MONTH)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isAfterMax(int year, int month, int day) {
+        if (mController == null) {
+            return false;
+        }
+        Calendar maxDate = mController.getMaxDate();
+        if (maxDate == null) {
+            return false;
+        }
+
+        if (year > maxDate.get(Calendar.YEAR)) {
+            return true;
+        } else if (year < maxDate.get(Calendar.YEAR)) {
+            return false;
+        }
+
+        if (month > maxDate.get(Calendar.MONTH)) {
+            return true;
+        } else if (month < maxDate.get(Calendar.MONTH)) {
+            return false;
+        }
+
+        if (day > maxDate.get(Calendar.DAY_OF_MONTH)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -661,10 +772,10 @@ public abstract class MonthView extends View {
          * @param rect The rectangle in which to store the bounds
          */
         protected void getItemBounds(int day, Rect rect) {
-            final int offsetX = mPadding;
-            final int offsetY = MONTH_HEADER_SIZE;
+            final int offsetX = mEdgePadding;
+            final int offsetY = getMonthHeaderSize();
             final int cellHeight = mRowHeight;
-            final int cellWidth = ((mWidth - (2 * mPadding)) / mNumDays);
+            final int cellWidth = ((mWidth - (2 * mEdgePadding)) / mNumDays);
             final int index = ((day - 1) + findDayOffset());
             final int row = (index / mNumDays);
             final int column = (index % mNumDays);

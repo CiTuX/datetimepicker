@@ -23,4 +23,6 @@
         android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application />
 </manifest>
