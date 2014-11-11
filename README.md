@@ -4,13 +4,27 @@ Mirror of https://android.googlesource.com/platform/frameworks/opt/datetimepicke
 
 DatePicker and TimePicker from Google for **Android 4.0+**
 
-If you want to support pre-ICS devices, you can checkout: https://github.com/flavienlaurent/datetimepicker
+If you want to support pre-ICS devices, you can checkout:
+
+https://github.com/flavienlaurent/datetimepicker
 
 ![DatePicker](https://raw.githubusercontent.com/CiTuX/datetimepicker/master/demo/screens/dateTimePicker.png)
 
 ## Usage
 
     compile 'com.github.citux:datetimepicker:0.1.1'
+
+## Demo
+
+A Demo App can be found under ![demo](demo).
+
+The interesting part is in the ![Activity](demo/src/main/java/ch/citux/datetimepicker/MainActivity.java).
+
+You can download the latest demo from ![here](https://github.com/CiTuX/datetimepicker/releases/latest) (demo.apk).
+
+## Credits
+
+Google - For developing the library
 
 ## License
 
