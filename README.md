@@ -16,11 +16,11 @@ https://github.com/flavienlaurent/datetimepicker
 
 ## Demo
 
-A Demo App can be found under ![demo](demo).
+A Demo App can be found under [demo](demo).
 
-The interesting part is in the ![Activity](demo/src/main/java/ch/citux/datetimepicker/MainActivity.java).
+The interesting part is in the [Activity](demo/src/main/java/ch/citux/datetimepicker/MainActivity.java).
 
-You can download the latest demo from ![here](https://github.com/CiTuX/datetimepicker/releases/latest) (demo.apk).
+You can download the latest demo from [here](https://github.com/CiTuX/datetimepicker/releases/latest) (demo.apk).
 
 ## Credits
 
