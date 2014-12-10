@@ -4,15 +4,15 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.1'
+        classpath 'com.android.tools.build:gradle:1.0.0'
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
 
     sourceSets {
         main {
@@ -26,7 +26,7 @@ android {
     }
 
     dependencies {
-        compile 'com.android.support:support-v13:19.1.0'
+        compile 'com.android.support:support-v13:21.0.0'
     }
 
     lintOptions {
