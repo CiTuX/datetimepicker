@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:background="@color/white"
+        android:background="@android:color/white"
         android:orientation="vertical" >
 
         <LinearLayout
