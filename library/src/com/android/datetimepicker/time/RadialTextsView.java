@@ -55,7 +55,13 @@ public class RadialTextsView extends View {
     private float mInnerNumbersRadiusMultiplier;
     private float mTextSizeMultiplier;
     private float mInnerTextSizeMultiplier;
-
+    private int mMinHour;
+    private int mMaxHour;
+    private int mMaxMinute;
+    private int mMinMinute;
+    protected int mDisabledTextColor;
+    protected int mTextColorNormal;
+    private int mSelectedHour;
     private int mXCenter;
     private int mYCenter;
     private float mCircleRadius;
@@ -80,11 +86,18 @@ public class RadialTextsView extends View {
     }
 
     public void initialize(Resources res, String[] texts, String[] innerTexts,
-            boolean is24HourMode, boolean disappearsOut) {
+            boolean is24HourMode, boolean disappearsOut, int minHour, int maxHour, int minMinute, int maxMinute) {
         if (mIsInitialized) {
             Log.e(TAG, "This RadialTextsView may only be initialized once.");
             return;
         }
+
+        mDisabledTextColor = res.getColor(R.color.date_picker_text_disabled);
+        mTextColorNormal = res.getColor(R.color.date_picker_text_normal);
+        mMinHour = minHour;
+        mMaxHour = maxHour;
+        mMinMinute = minMinute;
+        mMaxMinute = maxMinute;
 
         // Set up the paint.
         int numbersTextColor = res.getColor(R.color.numbers_text_color);
@@ -269,18 +282,27 @@ public class RadialTextsView extends View {
             float[] textGridWidths, float[] textGridHeights) {
         mPaint.setTextSize(textSize);
         mPaint.setTypeface(typeface);
-        canvas.drawText(texts[0], textGridWidths[3], textGridHeights[0], mPaint);
-        canvas.drawText(texts[1], textGridWidths[4], textGridHeights[1], mPaint);
-        canvas.drawText(texts[2], textGridWidths[5], textGridHeights[2], mPaint);
-        canvas.drawText(texts[3], textGridWidths[6], textGridHeights[3], mPaint);
-        canvas.drawText(texts[4], textGridWidths[5], textGridHeights[4], mPaint);
-        canvas.drawText(texts[5], textGridWidths[4], textGridHeights[5], mPaint);
-        canvas.drawText(texts[6], textGridWidths[3], textGridHeights[6], mPaint);
-        canvas.drawText(texts[7], textGridWidths[2], textGridHeights[5], mPaint);
-        canvas.drawText(texts[8], textGridWidths[1], textGridHeights[4], mPaint);
-        canvas.drawText(texts[9], textGridWidths[0], textGridHeights[3], mPaint);
-        canvas.drawText(texts[10], textGridWidths[1], textGridHeights[2], mPaint);
-        canvas.drawText(texts[11], textGridWidths[2], textGridHeights[1], mPaint);
+        drawText(canvas, texts[0], textGridWidths[3], textGridHeights[0]);
+        drawText(canvas, texts[1], textGridWidths[4], textGridHeights[1]);
+        drawText(canvas, texts[2], textGridWidths[5], textGridHeights[2]);
+        drawText(canvas, texts[3], textGridWidths[6], textGridHeights[3]);
+        drawText(canvas, texts[4], textGridWidths[5], textGridHeights[4]);
+        drawText(canvas, texts[5], textGridWidths[4], textGridHeights[5]);
+        drawText(canvas, texts[6], textGridWidths[3], textGridHeights[6]);
+        drawText(canvas, texts[7], textGridWidths[2], textGridHeights[5]);
+        drawText(canvas, texts[8], textGridWidths[1], textGridHeights[4]);
+        drawText(canvas, texts[9], textGridWidths[0], textGridHeights[3]);
+        drawText(canvas, texts[10], textGridWidths[1], textGridHeights[2]);
+        drawText(canvas, texts[11], textGridWidths[2], textGridHeights[1]);
+    }
+
+    private void drawText(Canvas canvas, String text, float width, float height){
+        setPaintColorEnabledOrDisabled(text);
+        canvas.drawText(text, width, height, mPaint);
+    }
+
+    public void setSelectedHour(int selectedHour){
+        mSelectedHour = selectedHour;
     }
 
     /**
@@ -354,6 +376,30 @@ public class RadialTextsView extends View {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
             RadialTextsView.this.invalidate();
+        }
+    }
+
+    private void setPaintColorEnabledOrDisabled(String text){
+        if (mHasInnerCircle) {
+            if ((Integer.parseInt(text) >= mMinHour) && (Integer.parseInt(text) <= mMaxHour)){
+                mPaint.setColor(mTextColorNormal);
+            } else {
+                mPaint.setColor(mDisabledTextColor);
+            }
+        }else{
+            boolean checkedMinMinute = true;
+            boolean checkedMaxMinute = true;
+            if (mSelectedHour == mMinHour){
+                checkedMinMinute = (Integer.parseInt(text) >= mMinMinute);
+            }
+            if (mSelectedHour == mMaxHour){
+                checkedMaxMinute = (Integer.parseInt(text) <= mMaxMinute);
+            }
+            if (checkedMinMinute && checkedMaxMinute){
+                mPaint.setColor(mTextColorNormal);
+            } else {
+                mPaint.setColor(mDisabledTextColor);
+            }
         }
     }
 }

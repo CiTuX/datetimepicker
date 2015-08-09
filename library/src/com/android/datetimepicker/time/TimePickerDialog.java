@@ -87,6 +87,10 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     private int mUnselectedColor;
     private String mAmText;
     private String mPmText;
+    private int mMinHour = 0;
+    private int mMinMinute = 0;
+    private int mMaxHour = 23;
+    private int mMaxMinute = 59;
 
     private boolean mAllowAutoAdvance;
     private int mInitialHourOfDay;
@@ -221,8 +225,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mTimePicker.setOnValueSelectedListener(this);
         mTimePicker.setOnKeyListener(keyboardListener);
         mTimePicker.initialize(getActivity(), mHapticFeedbackController, mInitialHourOfDay,
-            mInitialMinute, mIs24HourMode);
-
+            mInitialMinute, mIs24HourMode, mMinHour, mMaxHour, mMinMinute, mMaxMinute);
         int currentItemShowing = HOUR_INDEX;
         if (savedInstanceState != null &&
                 savedInstanceState.containsKey(KEY_CURRENT_ITEM_SHOWING)) {
@@ -390,19 +393,23 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     @Override
     public void onValueSelected(int pickerIndex, int newValue, boolean autoAdvance) {
         if (pickerIndex == HOUR_INDEX) {
-            setHour(newValue, false);
-            String announcement = String.format("%d", newValue);
-            if (mAllowAutoAdvance && autoAdvance) {
-                setCurrentItemShowing(MINUTE_INDEX, true, true, false);
-                announcement += ". " + mSelectMinutes;
-            } else {
-                mTimePicker.setContentDescription(mHourPickerDescription + ": " + newValue);
-            }
+            if (valueRespectsHoursConstraint(newValue)) {
+                setHour(newValue, false);
+                String announcement = String.format("%d", newValue);
+                if (mAllowAutoAdvance && autoAdvance) {
+                    setCurrentItemShowing(MINUTE_INDEX, true, true, false);
+                    announcement += ". " + mSelectMinutes;
+                } else {
+                    mTimePicker.setContentDescription(mHourPickerDescription + ": " + newValue);
+                }
 
-            Utils.tryAccessibilityAnnounce(mTimePicker, announcement);
+                Utils.tryAccessibilityAnnounce(mTimePicker, announcement);
+            }
         } else if (pickerIndex == MINUTE_INDEX){
-            setMinute(newValue);
-            mTimePicker.setContentDescription(mMinutePickerDescription + ": " + newValue);
+            if (valueRespectsMinutesConstraint(newValue)) {
+                setMinute(newValue);
+                mTimePicker.setContentDescription(mMinutePickerDescription + ": " + newValue);
+            }
         } else if (pickerIndex == AMPM_INDEX) {
             updateAmPmDisplay(newValue);
         } else if (pickerIndex == ENABLE_PICKER_INDEX) {
@@ -981,5 +988,41 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             }
             return false;
         }
+    }
+
+    /**
+     * Optional method for setting the MinTime on the TimePicker
+     */
+    @SuppressWarnings("unused")
+    public void setMinTime(int minHour,int minMinute) {
+        mMinHour = minHour;
+        mMinMinute = minMinute;
+    }
+
+    /**
+     * Optional method for setting the MaxTime on the TimePicker
+     */
+    @SuppressWarnings("unused")
+    public void setMaxTime(int maxHour,int maxMinute) {
+        mMaxHour = maxHour;
+        mMaxMinute = maxMinute;
+    }
+
+    private boolean valueRespectsHoursConstraint(int value){
+        boolean respectsConstraint = (mMinHour <= value && mMaxHour >= value);
+        return respectsConstraint;
+    }
+
+    private boolean valueRespectsMinutesConstraint(int value){
+        int hour = mTimePicker.getHours();
+        boolean checkedMinMinute = true;
+        boolean checkedMaxMinute = true;
+        if (hour == mMinHour) {
+            checkedMinMinute = (value >= mMinMinute);
+        }
+        if (hour == mMaxHour) {
+            checkedMaxMinute = (value <= mMaxMinute);
+        }
+        return checkedMinMinute && checkedMaxMinute;
     }
 }
