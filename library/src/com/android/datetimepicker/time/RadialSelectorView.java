@@ -73,6 +73,16 @@ public class RadialSelectorView extends View {
     private double mSelectionRadians;
     private boolean mForceDrawDot;
 
+    private int mMinHour;
+    private int mMinMinute;
+    private int mMaxHour;
+    private int mMaxMinute;
+    private int mSelectedHour;
+
+    private boolean innerRadiusSelection;
+    private boolean mIsHourSelection;
+    private final float COMPARING_FLOATS_EPSILON = 0.001f;
+
     public RadialSelectorView(Context context) {
         super(context);
         mIsInitialized = false;
@@ -92,11 +102,19 @@ public class RadialSelectorView extends View {
      * Will be ignored when hasInnerCircle is false.
      */
     public void initialize(Context context, boolean is24HourMode, boolean hasInnerCircle,
-            boolean disappearsOut, int selectionDegrees, boolean isInnerCircle) {
+            boolean disappearsOut, int selectionDegrees, boolean isInnerCircle, int minHour, int maxHour, int minMinute, int maxMinute) {
         if (mIsInitialized) {
             Log.e(TAG, "This RadialSelectorView may only be initialized once.");
             return;
         }
+
+        mMinHour = minHour;
+        mMaxHour = maxHour;
+        if (mMaxHour == 0) mMaxHour = 23;
+        mMinMinute = minMinute;
+        mMaxMinute = maxMinute;
+        if (mMaxMinute == 0) mMaxMinute = 59;
+        mIsHourSelection = disappearsOut;
 
         Resources res = context.getResources();
 
@@ -193,14 +211,14 @@ public class RadialSelectorView extends View {
     }
 
     public int getDegreesFromCoords(float pointX, float pointY, boolean forceLegal,
-            final Boolean[] isInnerCircle) {
+                                    final Boolean[] isInnerCircle) {
         if (!mDrawValuesReady) {
             return -1;
         }
 
         double hypotenuse = Math.sqrt(
                 (pointY - mYCenter)*(pointY - mYCenter) +
-                (pointX - mXCenter)*(pointX - mXCenter));
+                        (pointX - mXCenter)*(pointX - mXCenter));
         // Check if we're outside the range
         if (mHasInnerCircle) {
             if (forceLegal) {
@@ -300,12 +318,20 @@ public class RadialSelectorView extends View {
 
         // Draw the selection circle.
         mPaint.setAlpha(mSelectionAlpha);
-        canvas.drawCircle(pointX, pointY, mSelectionRadius, mPaint);
+
+        innerRadiusSelection = equals(mNumbersRadiusMultiplier, Float.parseFloat(getResources().getString(R.string.numbers_radius_multiplier_inner)));
+
+        if (constraintsAreMet(innerRadiusSelection, mSelectionDegrees)){
+            canvas.drawCircle(pointX, pointY, mSelectionRadius, mPaint);
+        }
 
         if (mForceDrawDot | mSelectionDegrees % 30 != 0) {
             // We're not on a direct tick (or we've been told to draw the dot anyway).
             mPaint.setAlpha(FULL_ALPHA);
-            canvas.drawCircle(pointX, pointY, (mSelectionRadius * 2 / 7), mPaint);
+
+            if (constraintsAreMet(innerRadiusSelection, mSelectionDegrees)){
+                canvas.drawCircle(pointX, pointY, (mSelectionRadius * 2 / 7), mPaint);
+            }
         } else {
             // We're not drawing the dot, so shorten the line to only go as far as the edge of the
             // selection circle.
@@ -318,7 +344,9 @@ public class RadialSelectorView extends View {
         // Draw the line from the center of the circle.
         mPaint.setAlpha(255);
         mPaint.setStrokeWidth(1);
-        canvas.drawLine(mXCenter, mYCenter, pointX, pointY, mPaint);
+        if (constraintsAreMet(innerRadiusSelection, mSelectionDegrees)){
+            canvas.drawLine(mXCenter, mYCenter, pointX, pointY, mPaint);
+        }
     }
 
     public ObjectAnimator getDisappearAnimator() {
@@ -393,6 +421,52 @@ public class RadialSelectorView extends View {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
             RadialSelectorView.this.invalidate();
+        }
+    }
+
+    public void setSelectedHour(int selectedHour){
+        mSelectedHour = selectedHour;
+    }
+
+    private boolean equals(float val1, float val2){
+        return Math.abs(val1 - val2) < COMPARING_FLOATS_EPSILON;
+    }
+
+    private boolean minAndMaxHourConstraintIsMet(boolean isInnerRadius,int selectionDegrees){
+        float hour_float = selectionDegrees / 30.0f;
+        int hour = (int)hour_float + ((hour_float - (int)hour_float) < 0.5f ? 0 : 1);
+        if (isInnerRadius){
+            if (hour == 0){
+                hour = 12;
+            }
+        }else{
+            hour += 12;
+
+            if (hour == 24){
+                hour = 0;
+            }
+        }
+        return (hour >= mMinHour) && (hour <= mMaxHour);
+    }
+
+    private boolean minAndMaxMinutesConstraintIsMet(int selectionDegrees){
+        int selectedMinute = selectionDegrees / 6;
+        boolean checkedMinMinute = true;
+        boolean checkedMaxMinute = true;
+        if (mSelectedHour == mMinHour){
+            checkedMinMinute = (selectedMinute >= mMinMinute);
+        }
+        if (mSelectedHour == mMaxHour){
+            checkedMaxMinute = (selectedMinute <= mMaxMinute);
+        }
+        return checkedMaxMinute && checkedMinMinute;
+    }
+
+    private boolean constraintsAreMet(boolean isInnerRadius,int selectionDegrees) {
+        if (mIsHourSelection) {
+            return minAndMaxHourConstraintIsMet(isInnerRadius,selectionDegrees);
+        } else {
+            return minAndMaxMinutesConstraintIsMet(selectionDegrees);
         }
     }
 }

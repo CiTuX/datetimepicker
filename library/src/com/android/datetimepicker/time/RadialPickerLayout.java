@@ -62,6 +62,10 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
     private static final int PM = TimePickerDialog.PM;
 
     private int mLastValueSelected;
+    private int mMinHour;
+    private int mMaxHour;
+    private int mMinMinute;
+    private int mMaxMinute;
 
     private HapticFeedbackController mHapticFeedbackController;
     private OnValueSelectedListener mListener;
@@ -165,13 +169,22 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
      * @param initialHoursOfDay
      * @param initialMinutes
      * @param is24HourMode
+     * @param minHour
+     * @param maxHour
+     * @param minMinute
+     * @param maxMinute
      */
     public void initialize(Context context, HapticFeedbackController hapticFeedbackController,
-            int initialHoursOfDay, int initialMinutes, boolean is24HourMode) {
+            int initialHoursOfDay, int initialMinutes, boolean is24HourMode, int minHour, int maxHour, int minMinute, int maxMinute) {
         if (mTimeInitialized) {
             Log.e(TAG, "Time has already been initialized.");
             return;
         }
+
+        mMinHour = minHour;
+        mMaxHour = maxHour;
+        mMinMinute = minMinute;
+        mMaxMinute = maxMinute;
 
         mHapticFeedbackController = hapticFeedbackController;
         mIs24HourMode = is24HourMode;
@@ -200,9 +213,9 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
             minutesTexts[i] = String.format("%02d", minutes[i]);
         }
         mHourRadialTextsView.initialize(res,
-                hoursTexts, (is24HourMode? innerHoursTexts : null), mHideAmPm, true);
+                hoursTexts, (is24HourMode ? innerHoursTexts : null), mHideAmPm, true, mMinHour, mMaxHour, mMinMinute, mMaxMinute);
         mHourRadialTextsView.invalidate();
-        mMinuteRadialTextsView.initialize(res, minutesTexts, null, mHideAmPm, false);
+        mMinuteRadialTextsView.initialize(res, minutesTexts, null, mHideAmPm, false, minHour, maxHour, minMinute, maxMinute);
         mMinuteRadialTextsView.invalidate();
 
         // Initialize the currently-selected hour and minute.
@@ -210,10 +223,10 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
         setValueForItem(MINUTE_INDEX, initialMinutes);
         int hourDegrees = (initialHoursOfDay % 12) * HOUR_VALUE_TO_DEGREES_STEP_SIZE;
         mHourRadialSelectorView.initialize(context, mHideAmPm, is24HourMode, true,
-                hourDegrees, isHourInnerCircle(initialHoursOfDay));
+                hourDegrees, isHourInnerCircle(initialHoursOfDay), mMinHour, mMaxHour, mMinMinute, mMaxMinute);
         int minuteDegrees = initialMinutes * MINUTE_VALUE_TO_DEGREES_STEP_SIZE;
         mMinuteRadialSelectorView.initialize(context, mHideAmPm, false, false,
-                minuteDegrees, false);
+                minuteDegrees, false, minHour, maxHour, minMinute, maxMinute);
 
         mTimeInitialized = true;
     }
@@ -295,9 +308,25 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
      */
     private void setValueForItem(int index, int value) {
         if (index == HOUR_INDEX) {
-            mCurrentHoursOfDay = value;
-        } else if (index == MINUTE_INDEX){
-            mCurrentMinutes = value;
+            if (mMinHour <= value && value <= mMaxHour) {
+                mCurrentHoursOfDay = value;
+                mMinuteRadialSelectorView.setSelectedHour(mCurrentHoursOfDay);
+                mMinuteRadialSelectorView.invalidate();
+                mMinuteRadialTextsView.setSelectedHour(mCurrentHoursOfDay);
+                mMinuteRadialTextsView.invalidate();
+            }
+        } else if (index == MINUTE_INDEX) {
+            boolean checkedMinMinute = true;
+            boolean checkedMaxMinute = true;
+            if (mCurrentHoursOfDay == mMinHour) {
+                checkedMinMinute = (value >= mMinMinute);
+            }
+            if (mCurrentHoursOfDay == mMaxHour) {
+                checkedMaxMinute = (value <= mMaxMinute);
+            }
+            if (checkedMinMinute && checkedMaxMinute) {
+                mCurrentMinutes = value;
+            }
         } else if (index == AMPM_INDEX) {
             if (value == AM) {
                 mCurrentHoursOfDay = mCurrentHoursOfDay % 12;
@@ -664,6 +693,7 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
                     if (value != mLastValueSelected) {
                         mHapticFeedbackController.tryVibrate();
                         mLastValueSelected = value;
+                        setValueForItem(getCurrentItemShowing(), value);
                         mListener.onValueSelected(getCurrentItemShowing(), value, false);
                     }
                 }
