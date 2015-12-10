@@ -74,7 +74,7 @@ public class AmPmCirclesView extends View {
         }
 
         Resources res = context.getResources();
-        mUnselectedColor = res.getColor(R.color.white);
+        mUnselectedColor = res.getColor(android.R.color.white);
         mSelectedColor = res.getColor(R.color.blue);
         mAmPmTextColor = res.getColor(R.color.ampm_text_color);
         mSelectedAlpha = SELECTED_ALPHA;
@@ -103,10 +103,10 @@ public class AmPmCirclesView extends View {
         if (themeDark) {
             mUnselectedColor = res.getColor(R.color.dark_gray);
             mSelectedColor = res.getColor(R.color.red);
-            mAmPmTextColor = res.getColor(R.color.white);
+            mAmPmTextColor = res.getColor(android.R.color.white);
             mSelectedAlpha = SELECTED_ALPHA_THEME_DARK;
         } else {
-            mUnselectedColor = res.getColor(R.color.white);
+            mUnselectedColor = res.getColor(android.R.color.white);
             mSelectedColor = res.getColor(R.color.blue);
             mAmPmTextColor = res.getColor(R.color.ampm_text_color);
             mSelectedAlpha = SELECTED_ALPHA;

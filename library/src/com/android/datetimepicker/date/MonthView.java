@@ -204,7 +204,7 @@ public abstract class MonthView extends View {
         mDayTextColor = res.getColor(R.color.date_picker_text_normal);
         mTodayNumberColor = res.getColor(R.color.blue);
         mDisabledDayTextColor = res.getColor(R.color.date_picker_text_disabled);
-        mMonthTitleColor = res.getColor(R.color.white);
+        mMonthTitleColor = res.getColor(android.R.color.white);
         mMonthTitleBGColor = res.getColor(R.color.circle_background);
 
         mStringBuilder = new StringBuilder(50);

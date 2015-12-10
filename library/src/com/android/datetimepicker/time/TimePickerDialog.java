@@ -201,7 +201,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mMinutePickerDescription = res.getString(R.string.minute_picker_description);
         mSelectMinutes = res.getString(R.string.select_minutes);
         mSelectedColor = res.getColor(mThemeDark? R.color.red : R.color.blue);
-        mUnselectedColor = res.getColor(mThemeDark? R.color.white : R.color.numbers_text_color);
+        mUnselectedColor =
+                res.getColor(mThemeDark? android.R.color.white : R.color.numbers_text_color);
 
         mHourView = (TextView) view.findViewById(R.id.hours);
         mHourView.setOnKeyListener(keyboardListener);
@@ -314,7 +315,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         // Set the theme at the end so that the initialize()s above don't counteract the theme.
         mTimePicker.setTheme(getActivity().getApplicationContext(), mThemeDark);
         // Prepare some colors to use.
-        int white = res.getColor(R.color.white);
+        int white = res.getColor(android.R.color.white);
         int circleBackground = res.getColor(R.color.circle_background);
         int line = res.getColor(R.color.line_background);
         int timeDisplay = res.getColor(R.color.numbers_text_color);
