@@ -10,7 +10,7 @@ If you want to support pre-ICS devices, you can checkout [this](https://github.c
 
 ## Usage
 
-    compile 'com.github.citux:datetimepicker:0.1.2'
+    compile 'com.github.citux:datetimepicker:0.2.0'
 
 ## Demo
 

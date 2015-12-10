@@ -30,7 +30,7 @@ if (project.hasProperty('ossrhUsername')) {
     apply plugin: 'signing'
 
     group = 'com.github.citux'
-    version = '0.1.2'
+    version = '0.2.0'
 
     uploadArchives {
         repositories {
