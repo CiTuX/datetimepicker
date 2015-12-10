@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dip"
             android:layout_weight="1"
-            android:background="@color/white" >
+            android:background="@android:color/white" >
             <include
                 layout="@layout/time_header_label"
                 android:layout_width="match_parent"

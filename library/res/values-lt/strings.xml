@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="done_label" msgid="7007948707597430919">"Atlikta"</string>
-    <string name="hour_picker_description" msgid="7586639618712934060">"Apskritas valandų slankiklis"</string>
-    <string name="minute_picker_description" msgid="6024811202872705251">"Apskritas minučių slankiklis"</string>
+    <string name="hour_picker_description" msgid="7586639618712934060">"Apskritas valandų šliaužiklis"</string>
+    <string name="minute_picker_description" msgid="6024811202872705251">"Apskritas minučių šliaužiklis"</string>
     <string name="select_hours" msgid="7651068754188418859">"Pasirinkite valandas"</string>
     <string name="select_minutes" msgid="8327182090226828481">"Pasirinkite minutes"</string>
     <string name="day_picker_description" msgid="3968620852217927702">"Mėnesio dienų tinklelis"</string>
