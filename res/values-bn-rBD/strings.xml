@@ -18,9 +18,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="done_label" msgid="7007948707597430919">"সম্পন্ন হয়েছে"</string>
-    <string name="hour_picker_description" msgid="7586639618712934060">"বৃত্তাকার ঘন্টা নির্বাচকের স্লাইডার"</string>
+    <string name="hour_picker_description" msgid="7586639618712934060">"বৃত্তাকার ঘণ্টা নির্বাচকের স্লাইডার"</string>
     <string name="minute_picker_description" msgid="6024811202872705251">"বৃত্তাকার মিনিট নির্বাচকের স্লাইডার"</string>
-    <string name="select_hours" msgid="7651068754188418859">"ঘন্টা নির্বাচন করুন"</string>
+    <string name="select_hours" msgid="7651068754188418859">"ঘণ্টা নির্বাচন করুন"</string>
     <string name="select_minutes" msgid="8327182090226828481">"মিনিট নির্বাচন করুন"</string>
     <string name="day_picker_description" msgid="3968620852217927702">"দিন দিয়ে সংগঠিত মাসের গ্রিড"</string>
     <string name="year_picker_description" msgid="6963340404644587098">"বছরের তালিকা"</string>
