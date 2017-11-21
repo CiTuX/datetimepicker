@@ -17,7 +17,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := android-opt-datetimepicker
 
-LOCAL_SDK_VERSION := 17
+LOCAL_SDK_VERSION := current
 
 LOCAL_SRC_FILES := \
      $(call all-java-files-under, src) \
@@ -25,7 +25,14 @@ LOCAL_SRC_FILES := \
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4
+LOCAL_USE_AAPT2 := true
+
+LOCAL_STATIC_JAVA_LIBRARIES := \
+    android-support-annotations
+LOCAL_STATIC_ANDROID_LIBRARIES := \
+    android-support-compat \
+    android-support-core-utils \
+    android-support-core-ui
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 
