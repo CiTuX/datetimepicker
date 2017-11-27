@@ -44,6 +44,8 @@ import com.android.datetimepicker.R;
  * The primary layout to hold the circular picker, and the am/pm buttons. This view well measure
  * itself to end up as a square. It also handles touches to be passed in to views that need to know
  * when they'd been touched.
+ *
+ * @deprecated This module is deprecated. Do not use this class.
  */
 public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
     private static final String TAG = "RadialPickerLayout";

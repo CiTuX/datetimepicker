@@ -29,7 +29,10 @@ import com.android.datetimepicker.R;
 
 /**
  * A text view which, when pressed or activated, displays a blue circle around the text.
+ *
+ * @deprecated This module is deprecated. Do not use this class.
  */
+@Deprecated
 public class TextViewWithCircularIndicator extends TextView {
 
     private static final int SELECTED_CIRCLE_ALPHA = 60;

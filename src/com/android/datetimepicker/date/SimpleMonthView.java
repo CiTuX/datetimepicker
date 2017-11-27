@@ -21,7 +21,7 @@ import android.graphics.Canvas;
 
 import java.util.Calendar;
 
-public class SimpleMonthView extends MonthView {
+class SimpleMonthView extends MonthView {
 
     public SimpleMonthView(Context context) {
         super(context);
