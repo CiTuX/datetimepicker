@@ -27,5 +27,5 @@
     <string name="select_day" msgid="3973338219107019769">"ମାସ ଓ ଦିନ ଚୟନ କରନ୍ତୁ"</string>
     <string name="select_year" msgid="2603330600102539372">"ବର୍ଷ ଚୟନ କରନ୍ତୁ"</string>
     <string name="item_is_selected" msgid="2674929164900463786">"<xliff:g id="ITEM">%1$s</xliff:g> ଚୟନ କରାଗଲା"</string>
-    <string name="deleted_key" msgid="6908431551612331381">"<xliff:g id="KEY">%1$s</xliff:g> ଡିଲିଟ୍‌ କରାଗଲା"</string>
+    <string name="deleted_key" msgid="6908431551612331381">"<xliff:g id="KEY">%1$s</xliff:g>କୁ ଡିଲିଟ୍‌ କରାଗଲା"</string>
 </resources>
