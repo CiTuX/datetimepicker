@@ -10,7 +10,10 @@ import android.provider.Settings;
 
 /**
  * A simple utility class to handle haptic feedback.
+ *
+ * @deprecated This module is deprecated. Do not use this class.
  */
+@Deprecated
 public class HapticFeedbackController {
     private static final int VIBRATE_DELAY_MS = 125;
     private static final int VIBRATE_LENGTH_MS = 5;

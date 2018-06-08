@@ -22,7 +22,7 @@ import android.util.AttributeSet;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.ViewAnimator;
 
-public class AccessibleDateAnimator extends ViewAnimator {
+class AccessibleDateAnimator extends ViewAnimator {
     private long mDateMillis;
 
     public AccessibleDateAnimator(Context context, AttributeSet attrs) {

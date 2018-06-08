@@ -25,7 +25,10 @@ import android.widget.LinearLayout;
 
 /**
  * Fake Button class, used so TextViews can announce themselves as Buttons, for accessibility.
+ *
+ * @deprecated This module is deprecated. Do not use this class.
  */
+@Deprecated
 public class AccessibleLinearLayout extends LinearLayout {
 
     public AccessibleLinearLayout(Context context, AttributeSet attrs) {

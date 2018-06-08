@@ -35,7 +35,7 @@ import com.android.datetimepicker.Utils;
  * View to show what number is selected. This will draw a blue circle over the number, with a blue
  * line coming from the center of the main circle to the edge of the blue selection.
  */
-public class RadialSelectorView extends View {
+class RadialSelectorView extends View {
     private static final String TAG = "RadialSelectorView";
 
     // Alpha level for selected circle.
