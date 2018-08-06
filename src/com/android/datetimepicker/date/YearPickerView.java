@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Displays a selectable list of years.
  */
-public class YearPickerView extends ListView implements OnItemClickListener, OnDateChangedListener {
+class YearPickerView extends ListView implements OnItemClickListener, OnDateChangedListener {
     private static final String TAG = "YearPickerView";
 
     private final DatePickerController mController;

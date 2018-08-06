@@ -35,7 +35,7 @@ import com.android.datetimepicker.R;
 /**
  * A view to show a series of numbers in a circular pattern.
  */
-public class RadialTextsView extends View {
+class RadialTextsView extends View {
     private final static String TAG = "RadialTextsView";
 
     private final Paint mPaint = new Paint();
