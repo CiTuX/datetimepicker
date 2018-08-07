@@ -52,7 +52,7 @@ import java.util.Locale;
  * A calendar-like view displaying a specified month and the appropriate selectable day numbers
  * within the specified month.
  */
-public abstract class MonthView extends View {
+abstract class MonthView extends View {
     private static final String TAG = "MonthView";
 
     /**

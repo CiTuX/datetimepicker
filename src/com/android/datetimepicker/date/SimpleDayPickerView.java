@@ -22,7 +22,7 @@ import android.util.AttributeSet;
 /**
  * A DayPickerView customized for {@link SimpleMonthAdapter}
  */
-public class SimpleDayPickerView extends DayPickerView {
+class SimpleDayPickerView extends DayPickerView {
 
     public SimpleDayPickerView(Context context, AttributeSet attrs) {
         super(context, attrs);

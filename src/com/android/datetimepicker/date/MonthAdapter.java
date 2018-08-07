@@ -32,7 +32,7 @@ import java.util.HashMap;
 /**
  * An adapter for a list of {@link MonthView} items.
  */
-public abstract class MonthAdapter extends BaseAdapter implements OnDayClickListener {
+abstract class MonthAdapter extends BaseAdapter implements OnDayClickListener {
 
     private static final String TAG = "SimpleMonthAdapter";
 
