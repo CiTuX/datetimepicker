@@ -1,5 +1,5 @@
 # DEPRECATED
-See Commit a5c1a0a3b7241e3ec567d4fb32673fcfd98d4fc4
+See Commit ![a5c1a0a3b7241e3ec567d4fb32673fcfd98d4fc4](https://github.com/CiTuX/datetimepicker/commit/a5c1a0a3b7241e3ec567d4fb32673fcfd98d4fc4)
 
 Please use ![android.app.DatePickerDialog](https://developer.android.com/reference/android/app/DatePickerDialog) and ![android.app.TimePickerDialog](https://developer.android.com/reference/android/app/TimePickerDialog) 
 
