@@ -28,7 +28,10 @@ import java.util.Calendar;
 
 /**
  * Utility helper functions for time and date pickers.
+ *
+ * @deprecated This module is deprecated. Do not use this class.
  */
+@Deprecated
 public class Utils {
 
     public static final int MONDAY_BEFORE_JULIAN_EPOCH = Time.EPOCH_JULIAN_DAY - 3;

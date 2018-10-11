@@ -21,7 +21,7 @@
     <string name="hour_picker_description" msgid="7586639618712934060">"နာရီ ရွေးစရာ စက်ဝိုင်း"</string>
     <string name="minute_picker_description" msgid="6024811202872705251">"မိနစ် ရွေးစရာ စက်ဝိုင်း"</string>
     <string name="select_hours" msgid="7651068754188418859">"နာရီများ ရွေးပါ"</string>
-    <string name="select_minutes" msgid="8327182090226828481">"မိနစ်များ ရွေးပါ"</string>
+    <string name="select_minutes" msgid="8327182090226828481">"မိနစ် ရွေးပါ"</string>
     <string name="day_picker_description" msgid="3968620852217927702">"လအလိုက် နေ့များ အကွက်"</string>
     <string name="year_picker_description" msgid="6963340404644587098">"ခုနှစ် စာရင်း"</string>
     <string name="select_day" msgid="3973338219107019769">"လ နှင့် နေ့ ရွေးပါ"</string>

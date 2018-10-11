@@ -18,9 +18,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="done_label" msgid="7007948707597430919">"सम्पन्न भयो"</string>
-    <string name="hour_picker_description" msgid="7586639618712934060">"घण्टा गोलाकार स्लाइडर"</string>
+    <string name="hour_picker_description" msgid="7586639618712934060">"घन्टा गोलाकार स्लाइडर"</string>
     <string name="minute_picker_description" msgid="6024811202872705251">"मिनेट गोलाकार स्लाइडर"</string>
-    <string name="select_hours" msgid="7651068754188418859">"घण्टा चयन गर्नुहोस्"</string>
+    <string name="select_hours" msgid="7651068754188418859">"घन्टा चयन गर्नुहोस्"</string>
     <string name="select_minutes" msgid="8327182090226828481">"मिनेट चयन गर्नुहोस्"</string>
     <string name="day_picker_description" msgid="3968620852217927702">"दिनहरुको महिना ग्रिड"</string>
     <string name="year_picker_description" msgid="6963340404644587098">"वर्ष सूची"</string>

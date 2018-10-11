@@ -25,7 +25,10 @@ import android.widget.TextView;
 
 /**
  * Fake Button class, used so TextViews can announce themselves as Buttons, for accessibility.
+ *
+ * @deprecated This module is deprecated. Do not use this class.
  */
+@Deprecated
 public class AccessibleTextView extends TextView {
 
     public AccessibleTextView(Context context, AttributeSet attrs) {
