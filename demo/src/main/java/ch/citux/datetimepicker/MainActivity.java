@@ -1,19 +1,18 @@
 package ch.citux.datetimepicker;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.TextView;
-
-import com.android.datetimepicker.date.DatePickerDialog;
-import com.android.datetimepicker.time.RadialPickerLayout;
-import com.android.datetimepicker.time.TimePickerDialog;
+import android.widget.TimePicker;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-
 
 public class MainActivity extends Activity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
@@ -48,22 +47,22 @@ public class MainActivity extends Activity implements DatePickerDialog.OnDateSet
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnDatePicker:
-                DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show(getFragmentManager(), "datePicker");
+                new DatePickerDialog(this, this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
                 break;
             case R.id.btnTimePicker:
-                TimePickerDialog.newInstance(this, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show(getFragmentManager(), "timePicker");
+                new TimePickerDialog(this, this, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
                 break;
         }
     }
 
     @Override
-    public void onDateSet(DatePickerDialog dialog, int year, int monthOfYear, int dayOfMonth) {
+    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
         calendar.set(year, monthOfYear, dayOfMonth);
         update();
     }
 
     @Override
-    public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendar.set(Calendar.MINUTE, minute);
         update();
