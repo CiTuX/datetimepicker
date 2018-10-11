@@ -1,4 +1,9 @@
-# DateTimePicker
+# DEPRECATED
+See Commit a5c1a0a3b7241e3ec567d4fb32673fcfd98d4fc4
+
+Please use ![android.app.DatePickerDialog](https://developer.android.com/reference/android/app/DatePickerDialog) and ![android.app.TimePickerDialog](https://developer.android.com/reference/android/app/TimePickerDialog) 
+
+## DateTimePicker
 
 Mirror of https://android.googlesource.com/platform/frameworks/opt/datetimepicker with Gradle support
 
@@ -8,11 +13,11 @@ If you want to support pre-ICS devices, you can checkout [this](https://github.c
 
 ![DatePicker](https://raw.githubusercontent.com/CiTuX/datetimepicker/master/demo/screens/dateTimePicker.png)
 
-## Usage
+### Usage
 
     compile 'com.github.citux:datetimepicker:0.2.0'
 
-## Demo
+### Demo
 
 A Demo App can be found under [demo](demo).
 
@@ -20,11 +25,11 @@ The interesting part is in the [Activity](demo/src/main/java/ch/citux/datetimepi
 
 You can download the latest demo from [here](https://github.com/CiTuX/datetimepicker/releases/latest) (demo.apk).
 
-## Credits
+### Credits
 
 Google - For developing the library
 
-## License
+### License
 
     Copyright 2014 Paul Stöhr
     Copyright 2013 The Android Open Source Project
